@@ -1,0 +1,43 @@
+.home-heading{
+	background-color: $main-bg-color;
+	color:$main-front-color;
+	.head-text{
+		font-size: 2em;
+		vertical-align: middle;
+		padding-top: 0.5em;
+			
+		.i-address{
+			padding-right:10px;
+		}
+	}
+
+	.head-search{
+		outline: 0;
+		width: 100%;
+		display: block;
+		margin-top: 0.5em;
+		border: none;
+		padding: 1em;
+		border-radius: 20px;
+		color: #000;
+	}
+}
+
+.more-search{
+	background-color: $second-bg-color;
+	padding: 0.8em 0;
+	.left-content{
+		font-size: 1.5em;
+	}
+
+	.search-list{
+		font-size: 1.4em;
+		margin-bottom: 0;
+		padding-top: 2px;
+	}
+}
+
+.travel-img{
+	width:100%;
+	display:block;
+}

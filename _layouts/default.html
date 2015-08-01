@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+{% include head.html %}
+
+<body>
+    {% if page.top_nav %}
+		{% include {{ page.top_nav }}.html %}
+    {% endif %}
+    <div class="container panel full-height">
+        <div class="row">
+        	{{ content }}
+        </div>
+    </div>
+    {% if page.bottom_nav %}
+		{% include {{ page.bottom_nav }}.html %}
+    {% endif %}
+    {% include footer.html %}
+</body>
+</html>

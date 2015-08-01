@@ -1,0 +1,72 @@
+.my-nav {
+    background-color: transparent !important;
+    &+.container {
+        padding-top: 3.5em;
+    }
+}
+
+.top-panel {
+    h3 {
+        padding: 0.5em 0;
+    }
+    .left-angel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 2em;
+    }
+}
+
+.top-panel,
+.bottom-panel{
+    background-color: $main-bg-color;
+    color: $main-front-color;
+}
+
+.top-panel,
+.bottom-panel {
+    height: 50px;
+    position: relative;
+}
+
+.main-container {
+    padding: 0 5px;
+}
+
+#go-top {
+    position: absolute;
+    right: 20px;
+    color: #fff;
+    top: 10px;
+    i {
+        vertical-align: middle;
+        font-size: 2.5em;
+        padding-right: 2px;
+    }
+    small {}
+}
+
+
+/* bottom_nav_style2 */
+
+.bottom-panel.hh-bottom {
+    height: 75px;
+    padding-top: 14px;
+    &,a{
+        background-color: $third-bg-color;
+    }
+
+    .btn-group{
+        margin:0;
+    }
+}
+
+.bottom-panel.hh-bottom a.btn.btn-default{
+    color: $third-front-color;
+    font-weight: bold;
+}
+
+.bottom-panel.hh-bottom i {
+    font-size: 24px;
+    display: block;
+}

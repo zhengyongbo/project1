@@ -1,0 +1,33 @@
+---
+layout: default
+---
+
+<div class="main-container">
+    <div class="btn-group btn-group-justified" id="my-tab" role="tablist">
+    	{% assign list = site.data.list[page.slug] %}
+		{% for k in (0..list.count) %}
+			<a href="#tab{{ k }}" class="btn {% if k == 0 %} {{ "active" }} {% endif%}" aria-controls="tab{{ k }}" role="tab" data-toggle="tab">{{ list.tabs[k] }}</a>
+		{% endfor %}
+    </div>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        {% for j in (0..list.count) %}
+            <div role="tabpanel" class="tab-pane fade {% if j == 0 %} {{ "in active" }} {% endif%} " id="tab{{ j }}">
+                <div class="list-group my-list-group">
+                    {% for i in (1..4) %}
+                        <div class="list-group-item">
+                            <div class="row-picture">
+                                <img src="asserts/images/{{ list.image }}" alt="icon">
+                            </div>
+                            <div class="row-content">
+                         		{{ content }}
+                                <p class="price-block"><small>￥</small>299.00</p>
+                            </div>
+                        </div>
+                        <div class="list-group-separator"></div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

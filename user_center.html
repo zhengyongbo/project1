@@ -1,0 +1,19 @@
+---
+layout: default
+title: 用户中心
+slug: scene_list
+top_nav: top_nav_style1
+bottom_nav: bottom_nav_style2
+---
+<div class="main-container hh-order-row-content">
+    <div class="btn-group btn-group-justified my-btn-group">
+        <a href="javascript:void(0)" class="btn btn-default all-order"><i class="mdi-action-home"></i>所有</a>
+        <a href="javascript:void(0)" class="btn btn-default to-be-pay"><i class="mdi-action-account-box"></i>待支付</a>
+        <a href="javascript:void(0)" class="btn btn-default paid"><i class="mdi-action-account-box"></i>已支付</a>
+    </div>
+    <div class="border-div">
+        全部订单
+    </div>
+    {% include my_order.html %}
+</div>
+

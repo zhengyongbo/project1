@@ -1,0 +1,31 @@
+.my-btn-group{
+	margin-top:0;
+	box-shadow:none;
+	margin-bottom:20px;
+	a{
+		i{
+			display: block;
+			color: #fff;
+			width: 80px;
+			height: 80px;
+			font-size: 55px;
+			text-align: center;
+			vertical-align: middle;
+			margin: 0 auto;
+			margin-bottom: 15px;
+			padding-top: 10px;
+			border-radius: 50%;
+			
+		}
+		
+		&:nth-child(1) i {
+			background-color:#f44336;
+		}
+		&:nth-child(2) i{
+			background-color:#4caf50;
+		}
+		&:nth-child(3) i{
+			background-color:$third-front-color;
+		}
+	}
+}

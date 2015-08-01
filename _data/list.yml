@@ -1,0 +1,30 @@
+line_list:
+  count: 2
+  tabs:
+    - 综合推荐
+    - 销量	
+    - 价格
+  image: line_list_01.png
+
+tour_list:
+  count: 1
+  tabs:
+    - 销量	
+    - 价格
+  image: line_list_01.png
+
+hotel_list:
+  count: 2
+  tabs:
+    - 综合推荐
+    - 销量	
+    - 价格
+  image: scene_list_01.png
+
+scene_list:
+  count: 2
+  tabs:
+    - 综合推荐
+    - 销量	
+    - 价格
+  image: scene_list_01.png

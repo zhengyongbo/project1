@@ -1,0 +1,31 @@
+html,body{
+	height:100%;
+	overflow-x:hidden;
+}
+
+.full-height{
+	min-height:100%;
+	padding:0 10px;
+	margin:0 auto;
+}
+body{
+	font:14px/2 Microsoft YaHei,SimSun,Arial;
+}
+
+.h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
+  font-family:Microsoft YaHei,SimSun,Arial;
+}
+
+.no-padding{
+	padding:0;
+}
+
+.no-margin{
+	margin:0;
+}
+
+.border-div{
+	border: 1px solid #ccc;
+	padding: 10px;
+	margin: 10px 16px;
+}
