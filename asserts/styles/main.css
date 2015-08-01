@@ -66,7 +66,7 @@ body {
   .my-list-group .list-group-item .price-block small {
     font-size: 70%; }
 .my-list-group .list-group-separator:before {
-  width: calc(100% - 175px); }
+  width: 100%; }
 
 #my-tab {
   box-shadow: none !important;
@@ -87,14 +87,16 @@ body {
   padding: 0.5em 0; }
 .top-panel .left-angel {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 2em; }
+  font-size: 2em;
+  margin: 0; }
+  .top-panel .left-angel i {
+    color: #fff; }
 
 .top-panel,
 .bottom-panel {
   background-color: #42a5f5;
-  color: #fff; }
+  color: #fff;
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.12), 0 1px 6px 0 rgba(0, 0, 0, 0.12); }
 
 .top-panel,
 .bottom-panel {

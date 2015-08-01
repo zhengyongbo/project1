@@ -4,10 +4,20 @@ title: index
 slug: index
 ---
 <div class="panel-body">
-  <h3>所有页面列表</h3>
-    <ul class="list-group">
-        {% for node in site.html_pages %} {% if node.title != "index" %}
-        <li class="list-group-item"><a href=".{{ node.url }}">{{ node.title }}</a></li>
+    <div class="alert alert-dismissable alert-info shadow-z-1">
+        <strong>所有页面列表</strong>
+    </div>
+    <div class="list-group my-list-group">
+        {% for node in site.html_pages %} {% if node.slug != "index" and node.slug != "home" %}
+        <div class="list-group-item">
+          <div class="row-content" style="min-height: 20px;">
+            <a href=".{{ node.url }}" style="display: block;width:100%;">
+            <i class="fa fa-link" style="padding-right:10px;"></i>
+            <p class="list-group-item-text" style="display:inline-block;">{{ node.title }}</p>
+            </a>
+          </div>
+        </div>
+        <div class="list-group-separator"></div>
         {% endif %} {% endfor %}
-    </ul>
+    </div>
 </div>

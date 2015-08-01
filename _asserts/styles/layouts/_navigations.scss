@@ -11,9 +11,11 @@
     }
     .left-angel {
         position: absolute;
-        top: 10px;
-        left: 10px;
         font-size: 2em;
+        margin: 0;
+        i{
+            color: $main-front-color;
+        }
     }
 }
 
@@ -21,6 +23,7 @@
 .bottom-panel{
     background-color: $main-bg-color;
     color: $main-front-color;
+    box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
 }
 
 .top-panel,
