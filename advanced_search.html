@@ -1,0 +1,71 @@
+---
+layout: default
+title: 高级搜索
+slug: advanced_search
+top_nav: top_nav_style1
+---
+
+<form class="form-horizontal search-form advanced-search">
+	<fieldset>
+		{% for item in site.data.search %}
+			<div class=" form-group row xx">
+				{% if item.text != empty %}
+		            <label for="inputEmail" class="control-label">{{ item.text }}</label>
+					{% case item.type %}
+					{% when "btns" %}
+						<div class="col-xs-12">
+							{% for btn in item.btns %}
+								<a href="#" class="btn btn-sm btn-default btn-raised hh-font-size-14">{{ btn }}</a>
+							{% endfor %}
+						</div>
+					{% when "date_input" %}
+						<div class="col-xs-12 col-sm-6">
+							<input type="text" value="" class="form-control" >
+							<span>-</span>
+							<input type="text" value="" class="form-control" >
+						</div>
+					{% when "input" %}
+						<div class="col-xs-12 col-sm-6">
+							<input type="text" value="" class="form-control"><span>{{ item.placeholder }}</span>
+						</div>
+	            	{% endcase %}
+		            
+	            {% else %}
+	            	<div class="slider-style">
+	            	{% case item.type %}
+					{% when "slider_price" %}
+						<div id="shor-price" class="slider shor-price slider-warning"></div>
+						<div class="btn-group-justified">
+							<a href="" class="btn btn-default">不限</a>
+							<a href="" class="btn btn-default">500</a>
+							<a href="" class="btn btn-default">1000</a>
+							<a href="" class="btn btn-default">2000</a>
+							<a href="" class="btn btn-default">3000</a>
+							<a href="" class="btn btn-default">4000</a>
+							<a href="" class="btn btn-default">8000</a>
+							<a href="" class="btn btn-default">8000以上</a>
+						</div>
+					{% when "slider_day" %}
+						<div id="shor-day" class="slider shor-day slider-warning"></div>
+						<div class="btn-group-justified">
+							<a href="" class="btn btn-default">不限</a>
+							<a href="" class="btn btn-default">1天</a>
+							<a href="" class="btn btn-default">2天</a>
+							<a href="" class="btn btn-default">3天</a>
+							<a href="" class="btn btn-default">4天</a>
+							<a href="" class="btn btn-default">5天</a>
+							<a href="" class="btn btn-default">6天</a>
+							<a href="" class="btn btn-default">7天</a>
+							<a href="" class="btn btn-default">7天以上</a>
+						</div>
+					{% endcase %}
+					</div>
+	            {% endif %}
+	        </div>
+        {% endfor %}
+
+        <div class="form-group">
+            <a href="#" class="btn btn-warning btn-lg btn-raised btn-block">搜索</a>
+        </div>
+	</fieldset>
+</form>

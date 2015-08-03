@@ -17,10 +17,8 @@
 
 		.price-block{
 			color:$second-color-color;
-			right: 0;
-			bottom: -1.5em;
 			margin: 0;
-			font-size: 2em;
+			font-size: 1.8em;
 			font-weight: bold;
 			text-align:right;
 			small{
@@ -31,5 +29,6 @@
 
 	.list-group-separator:before{
 		width:100%;
+		border-bottom-style: dashed;
 	}
 }

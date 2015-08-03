@@ -1,0 +1,28 @@
+---
+layout: default
+title: 选择目的地
+slug: select_city
+top_nav: top_nav_style1
+---
+
+<div class="city-left">
+	
+	{% for item in site.data.cities %}
+	<div class="city-row">
+		<div class="city-header">{{ item.text }}</div>
+		<div class="city-body">
+			{% for city in item.cities %}
+				<a href="#" class="btn btn-sm btn-default btn-raised hh-font-size-14">{{ city }}</a>
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+<div class="container city-right">
+	<ul class="list">
+		{% assign letters = "热门 a b c d e f g h i j k l m n o p q r s t u v w x y z" | upcase | split: ' ' %}
+		{% for letter in letters %}
+			<li><a href="#">{{ letter }}</a></li>
+		{% endfor %}
+	</ul>
+</div>

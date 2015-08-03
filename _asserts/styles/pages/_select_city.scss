@@ -1,0 +1,37 @@
+.city-left{
+	padding:10px 40px 10px 10px;
+}
+.city-left .city-row .city-header{
+	padding-top:10px;
+	font-size:1.1428em;
+	font-weight:bold;
+	line-height:1;
+}
+.city-right {
+	position:fixed;
+	top:50px;
+}
+.city-right .list {
+	width:35px;
+	position:absolute;
+	top:0;
+	right:0;
+	background:$hover-bg-color1;
+	line-height:1;
+	font-size:0.8571em;
+}
+.city-right .list li{
+	margin-left:-35px;
+	padding:1px 0;
+	text-align:center;
+}
+.city-right .list li a {
+	color:$hover-font-color1;
+}
+@media (max-width:767px){
+	.city-right {
+		right:0;
+		width:35px;
+
+}
+}

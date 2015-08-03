@@ -1,0 +1,4 @@
+- slug: price
+  text: 团期价格
+  icon: fa fa-calendar
+  content: "02-15:成人<span class='text-danger'>2510</span>,儿童<span class='text-danger'>2210</span>"

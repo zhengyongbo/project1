@@ -1,0 +1,44 @@
+- text: 参团性质
+  type: btns
+  btns: 
+    - 参团旅游
+    - 团队游
+    - 自驾游
+    - 自由行
+
+- text: 线路类型
+  type: btns
+  btns: 
+    - 周边游
+    - 国内游
+    - 出境游
+
+- text: 线路主题
+  type: btns
+  btns: 
+    - 古镇游
+    - 山水游
+    - 海岛游
+    - 乐园游
+    - 蜜月游
+    - 爸妈游
+    - 亲子游
+    - 温泉游
+
+- text: 出发日期
+  type: date_input
+
+- text: 单人预算
+  type: input
+  placeholder: 元
+
+- text: ""
+  type: slider_price
+
+- text: 出行天数
+  type: input
+  placeholder: 天
+
+- text: ""
+  type: slider_day
+

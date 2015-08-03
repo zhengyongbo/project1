@@ -1,0 +1,38 @@
+.advanced-search{
+	padding-top:10px;
+}
+.advanced-search .form-group {
+	padding:0 15px;
+	margin-left: 0;
+    margin-right: 0;
+}
+.advanced-search .form-group.row {
+	padding-left:85px;
+}
+.advanced-search .control-label {
+	width:85px;
+	padding-top: 10px;
+	padding-left: 0;
+    padding-right: 0;
+    margin-left:-85px;
+    float:left;
+    text-align:center;
+}
+
+.advanced-search .form-control{
+	margin-top:13px;
+	padding-bottom:5px;
+	float:left;
+	width:40%;
+}
+.advanced-search span {
+	float:left;
+	padding:13px 5px 0 5px;
+}
+.advanced-search .slider-style {
+	margin-left:-75px;
+}
+.advanced-search .btn-group-justified .btn{
+	padding:0;
+	font-size:0.8571em;
+}

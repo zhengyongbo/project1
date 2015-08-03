@@ -4,11 +4,9 @@
   "dependencies": {
     "jquery": "~2.1.4",
     "arrive": "~2.2.0",
+    "nouislider": "~8.0.2",
     "bootstrap": "~3.3.4",
     "bootstrap-material-design": "~0.3.0",
     "font-awesome": "~4.3.0"
   }
 }
-
-
-// command: git remote add origin git@github.com:zhengyongbo/project1.git

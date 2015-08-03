@@ -15,13 +15,17 @@ module.exports = function(grunt) {
         watch: {
             sass: {
                 files: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
-                tasks: ['sass:server', 'postcss', 'copy:sass','cssmin']
+                tasks: ['sass:server', 'postcss', 'copy:sass', 'cssmin']
             },
-            js:{
+            js: {
                 files: ['<%= config.app %>/scripts/{,*/}*.js'],
-                tasks: ['copy:dist','uglify']
+                tasks: ['copy:dist', 'uglify']
+            },
+            images: {
+                files: ['<%= config.app %>/images/{,*/}*'],
+                tasks: ['copy:images']
             }
-        }, 
+        },
 
         // Compiles Sass to CSS and generates necessary files if requested
         sass: {
@@ -116,7 +120,7 @@ module.exports = function(grunt) {
                         'scripts/*.js',
                         'styles/*.css'
                     ]
-                },{
+                }, {
                     expand: true,
                     dot: true,
                     cwd: '<%= config.app %>/images',
@@ -139,6 +143,19 @@ module.exports = function(grunt) {
                         'styles/*.css'
                     ]
                 }]
+            },
+
+            images: {
+                files: [{
+                    expand: true,
+                    dot: true,
+                    cwd: '<%= config.app %>',
+                    dest: '<%= config.dist %>',
+                    src: [
+                        'images/*.png',
+                        'styles/*.jpg'
+                    ]
+                }]
             }
         },
 
@@ -151,14 +168,15 @@ module.exports = function(grunt) {
                 ],
                 dependencies: {
                     'bootstrap': 'jquery',
-                    'bootstrap-material-design': ['arrive','bootstrap']
+                    'bootstrap-material-design': ['nouislider', 'arrive', 'bootstrap']
                 },
                 bowerOptions: {
                     relative: true
                 },
 
                 mainFiles: {
-                    'bootstrap': ['dist/css/bootstrap.css','dist/js/bootstrap.js']
+                    'nouislider': ['distribute/nouislider.js'],
+                    'bootstrap': ['dist/css/bootstrap.css', 'dist/js/bootstrap.js']
                 }
             }
         },

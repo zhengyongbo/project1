@@ -1,0 +1,54 @@
+---
+layout: default
+title: 线路详情
+slug: line_details
+top_nav: top_nav_style1
+---
+
+<div class="line-header">
+	<div class="line-image">
+		<img src="asserts/images/line_details_01.png" alt="">
+	</div>
+	<div class="line-info">
+		昆明 新西兰-南北岛8日游 宿梯卡坡，山顶自助餐，赠玛塔玛塔，萤火虫洞,7月观星
+	</div>
+	<div class="line-price clearfix">
+		<span class="price-text">
+		<small>￥</small>2990	
+		</span>
+
+		<a href="#" class="btn btn-danger btn-lg no-margin pull-right">立即支付</a>
+	</div>
+</div>
+{% for item in site.data.line_details %}
+	<div class="line-details">
+		<div class="details-header">
+			<i class="{{ item.icon }}"></i> {{ item.text }}
+		</div>
+		<div class="details-body">
+			{% case item.slug %}
+			{% when 'price' %}
+				<div class="row">
+					{% for i in (1..8) %}
+					<div class="col-xs-6">
+						{{ item.content }}
+					</div>
+					{% endfor %}
+				</div>
+			{% when 'price' %}
+
+			{% when 'price' %}
+
+			{% when 'price' %}
+
+			{% when 'price' %}
+
+			{% endcase %}
+		</div>
+	</div>
+{% endfor %}
+
+
+
+
+

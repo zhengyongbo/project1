@@ -1,12 +1,17 @@
-#my-tab{
-	box-shadow: none !important;
-	margin-right:0;
-	margin-left:0;
-	a {
-		border-bottom: 1px solid #ccc;
-		&.active{
-			border: 1px solid #ccc;
-	  		border-bottom: 0;
-  		}
-	}
+#my-tab {
+    box-shadow: none !important;
+    margin-right: 0;
+    margin-left: 0;
+    a {
+        border-bottom: 1px solid #ccc;
+        &.active {
+            border: 1px solid #ccc;
+            border-bottom: 0;
+        }
+    }
+}
+
+#my-tab .btn {
+    padding-left:0;
+    padding-right:0;
 }

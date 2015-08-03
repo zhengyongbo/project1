@@ -1,6 +1,6 @@
 html,body{
 	height:100%;
-	overflow-x:hidden;
+
 }
 
 .full-height{
@@ -12,6 +12,9 @@ body{
 	font:14px/2 Microsoft YaHei,SimSun,Arial;
 }
 
+ul , ol , li {
+	list-style-type:none; vertical-align: middle;
+}
 .h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
   font-family:Microsoft YaHei,SimSun,Arial;
 }
@@ -23,9 +26,28 @@ body{
 .no-margin{
 	margin:0;
 }
-
+.hh-mlr--10 {
+	margin-left:-10px;
+	margin-right:-10px;
+}
+.hh-pb-30 {
+    padding-bottom:30px;
+}
+.hh-plr-0 {
+	padding-left:0;
+	padding-right:0;
+}
+.hh-padding-10 {
+	padding:10px;
+}
+.hh-font-size-14{
+	font-size:14px;
+}
 .border-div{
 	border: 1px solid #ccc;
 	padding: 10px;
 	margin: 10px 16px;
+}
+.form-group .form-control:focus, .form-group-default .form-control:focus {
+    background-image: linear-gradient($main-bg-color, $main-bg-color), linear-gradient(#d2d2d2, #d2d2d2);
 }

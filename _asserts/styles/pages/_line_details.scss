@@ -1,0 +1,17 @@
+.line-image{
+	img{
+		width:100%;
+	}
+}
+
+.line-price {
+	background-color:#eee;
+	.price-text{
+		color: #ff5722;
+		margin: 0;
+		font-size: 1.5em;
+		font-weight: bold;
+		text-align: right;
+		padding: 0;
+	}
+}
