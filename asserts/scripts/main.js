@@ -14,4 +14,36 @@ $(function() {
         }, 600);
         return false;
     });
+
+    var shorPrice = document.getElementById('shor-price');
+
+    if(shorPrice){
+        noUiSlider.create(shorPrice, {
+            start: 2000,
+            connect: "lower",
+            range: {
+                'min': [  0 ],
+                '12.5%': [  500 ],
+                '25%': [  1000 ],
+                '37.5%': [ 2000 ],
+                'max': [8000]
+            }
+        });
+    }
+
+    var shorDay = document.getElementById('shor-day');
+
+    if(shorDay){
+        noUiSlider.create(shorDay, {
+            start: 2000,
+            connect: "lower",
+            range: {
+                'min': [  0 ],
+                '12.5%': [  500 ],
+                '25%': [  1000 ],
+                '37.5%': [ 2000 ],
+                'max': [8000]
+            }
+        });
+    }
 });

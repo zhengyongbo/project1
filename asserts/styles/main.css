@@ -1,6 +1,5 @@
 html, body {
-  height: 100%;
-  overflow-x: hidden; }
+  height: 100%; }
 
 .full-height {
   min-height: 100%;
@@ -9,6 +8,10 @@ html, body {
 
 body {
   font: 14px/2 Microsoft YaHei,SimSun,Arial; }
+
+ul, ol, li {
+  list-style-type: none;
+  vertical-align: middle; }
 
 .h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
   font-family: Microsoft YaHei,SimSun,Arial; }
@@ -19,10 +22,31 @@ body {
 .no-margin {
   margin: 0; }
 
+.hh-mlr--10 {
+  margin-left: -10px;
+  margin-right: -10px; }
+
+.hh-pb-30 {
+  padding-bottom: 30px; }
+
+.hh-plr-0 {
+  padding-left: 0;
+  padding-right: 0; }
+
+.hh-padding-10 {
+  padding: 10px; }
+
+.hh-font-size-14 {
+  font-size: 14px; }
+
 .border-div {
   border: 1px solid #ccc;
   padding: 10px;
   margin: 10px 16px; }
+
+.form-group .form-control:focus, .form-group-default .form-control:focus {
+  background-image: -webkit-linear-gradient(#42a5f5, #42a5f5), -webkit-linear-gradient(#d2d2d2, #d2d2d2);
+  background-image: linear-gradient(#42a5f5, #42a5f5), linear-gradient(#d2d2d2, #d2d2d2); }
 
 .my-btn-group {
   margin-top: 0;
@@ -31,9 +55,9 @@ body {
   .my-btn-group a i {
     display: block;
     color: #fff;
-    width: 80px;
-    height: 80px;
-    font-size: 55px;
+    width: 70px;
+    height: 70px;
+    font-size: 50px;
     text-align: center;
     vertical-align: middle;
     margin: 0 auto;
@@ -57,16 +81,15 @@ body {
   position: relative; }
 .my-list-group .list-group-item .price-block {
   color: #ff5722;
-  right: 0;
-  bottom: -1.5em;
   margin: 0;
-  font-size: 2em;
+  font-size: 1.8em;
   font-weight: bold;
   text-align: right; }
   .my-list-group .list-group-item .price-block small {
     font-size: 70%; }
 .my-list-group .list-group-separator:before {
-  width: 100%; }
+  width: 100%;
+  border-bottom-style: dashed; }
 
 #my-tab {
   box-shadow: none !important;
@@ -77,6 +100,10 @@ body {
     #my-tab a.active {
       border: 1px solid #ccc;
       border-bottom: 0; }
+
+#my-tab .btn {
+  padding-left: 0;
+  padding-right: 0; }
 
 .my-nav {
   background-color: transparent !important; }
@@ -118,8 +145,8 @@ body {
 
 /* bottom_nav_style2 */
 .bottom-panel.hh-bottom {
-  height: 75px;
-  padding-top: 14px; }
+  height: 70px;
+  padding-top: 5px; }
   .bottom-panel.hh-bottom, .bottom-panel.hh-bottom a {
     background-color: #fff; }
   .bottom-panel.hh-bottom .btn-group {
@@ -172,11 +199,11 @@ body {
   padding-bottom: 30px; }
 
 .hh-order-row-content .list-group .list-group-item .list-group-item-heading {
-  font-size: 16px;
+  font-size: 1.2em;
   line-height: 1.28; }
 
 .hh-order-row-content .list-group .list-group-item .list-group-item-text {
-  font-size: 12px; }
+  font-size: 0.9em; }
 
 .hh-mt--10 {
   margin-top: -10px; }
@@ -188,5 +215,89 @@ body {
 .hh-pay-back {
   box-shadow: none;
   border: none; }
+
+.city-left {
+  padding: 10px 40px 10px 10px; }
+
+.city-left .city-row .city-header {
+  padding-top: 10px;
+  font-size: 1.1428em;
+  font-weight: bold;
+  line-height: 1; }
+
+.city-right {
+  position: fixed;
+  top: 50px; }
+
+.city-right .list {
+  width: 35px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #f5f5f5;
+  line-height: 1;
+  font-size: 0.8571em; }
+
+.city-right .list li {
+  margin-left: -35px;
+  padding: 1px 0;
+  text-align: center; }
+
+.city-right .list li a {
+  color: #333; }
+
+@media (max-width: 767px) {
+  .city-right {
+    right: 0;
+    width: 35px; } }
+.advanced-search {
+  padding-top: 10px; }
+
+.advanced-search .form-group {
+  padding: 0 15px;
+  margin-left: 0;
+  margin-right: 0; }
+
+.advanced-search .form-group.row {
+  padding-left: 85px; }
+
+.advanced-search .control-label {
+  width: 85px;
+  padding-top: 10px;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: -85px;
+  float: left;
+  text-align: center; }
+
+.advanced-search .form-control {
+  margin-top: 13px;
+  padding-bottom: 5px;
+  float: left;
+  width: 40%; }
+
+.advanced-search span {
+  float: left;
+  padding: 13px 5px 0 5px; }
+
+.advanced-search .slider-style {
+  margin-left: -75px; }
+
+.advanced-search .btn-group-justified .btn {
+  padding: 0;
+  font-size: 0.8571em; }
+
+.line-image img {
+  width: 100%; }
+
+.line-price {
+  background-color: #eee; }
+  .line-price .price-text {
+    color: #ff5722;
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: right;
+    padding: 0; }
 
 /*# sourceMappingURL=main.css.map */
