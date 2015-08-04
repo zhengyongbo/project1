@@ -22,11 +22,10 @@
 .advanced-search .form-control{
 	margin-top:13px;
 	padding-bottom:5px;
-	float:left;
+	display:inline-block;
 	width:40%;
 }
 .advanced-search span {
-	float:left;
 	padding:13px 5px 0 5px;
 }
 .advanced-search .slider-style {

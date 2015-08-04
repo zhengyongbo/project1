@@ -46,4 +46,86 @@ $(function() {
             }
         });
     }
+
+    var now_seconds =  $.now();
+    var day_seconds = 3600*24*1000;
+    var events_source = [
+        {
+            "id": 293,
+            "title": "￥1999元",
+            "start": now_seconds, // Milliseconds
+            "end": now_seconds + 3600 // Milliseconds
+        },
+
+        {
+            "id": 295,
+            "title": "￥1999元",
+            "start": now_seconds + day_seconds, // Milliseconds
+            "end": now_seconds + day_seconds + 3600 // Milliseconds
+        },
+
+        {
+            "id": 296,
+            "title": "￥1999元",
+            "start": now_seconds + 2*day_seconds, // Milliseconds
+            "end": now_seconds + 2*day_seconds + 3600 // Milliseconds
+        },
+
+        {
+            "id": 297,
+            "title": "￥1999元",
+            "start": now_seconds + 3*day_seconds, // Milliseconds
+            "end": now_seconds + 3*day_seconds + 3600 // Milliseconds
+        },
+
+        {
+            "id": 298,
+            "title": "￥1999元",
+            "start": now_seconds + 4*day_seconds, // Milliseconds
+            "end": now_seconds + 4*day_seconds + 3600 // Milliseconds
+        }
+    ]
+
+    var options = {
+        events_source: events_source,
+        view: 'month',
+        tmpl_path: 'tmpls/',
+        tmpl_cache: false,
+        onAfterEventsLoad: function(events) {
+            // if(!events) {
+            //     return;
+            // }
+            // var list = $('#eventlist');
+            // list.html('');
+
+            // $.each(events, function(key, val) {
+            //     $(document.createElement('li'))
+            //         .html('<a href="' + val.url + '">' + val.title + '</a>')
+            //         .appendTo(list);
+            // });
+        },
+        onAfterViewLoad: function(view) {
+            $('.page-header h3').text(this.getTitle());
+        },
+        classes: {
+            months: {
+                general: 'label'
+            }
+        }
+    };
+
+    var calendar = $('#calendar').calendar(options);
+
+    
+
+    if(calendar){
+        $('.calendar-nav').click(function(){
+            var $this = $(this);
+            calendar.navigate($this.data('calendar-nav'));
+        });
+
+        calendar.setLanguage('zh-CN');
+        calendar.setOptions({weekbox: false});
+        calendar.view();
+    }
 });

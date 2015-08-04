@@ -1,0 +1,14 @@
+- icon: mdi-action-pageview
+  text: 查找商品
+
+- icon: mdi-maps-local-grocery-store
+  text: 提交订单
+
+- icon: mdi-maps-local-atm
+  text: 在线支付
+
+- icon: mdi-image-style
+  text: 获得团购券
+
+- icon: mdi-action-perm-phone-msg
+  text: 预约消费

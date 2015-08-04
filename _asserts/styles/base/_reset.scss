@@ -1,8 +1,11 @@
 html,body{
 	height:100%;
-
 }
-
+@media (max-width:767px){
+	html,body{
+	overflow-x:hidden;
+}
+}
 .full-height{
 	min-height:100%;
 	padding:0 10px;
@@ -19,10 +22,6 @@ ul , ol , li {
   font-family:Microsoft YaHei,SimSun,Arial;
 }
 
-.no-padding{
-	padding:0;
-}
-
 .no-margin{
 	margin:0;
 }
@@ -30,6 +29,13 @@ ul , ol , li {
 	margin-left:-10px;
 	margin-right:-10px;
 }
+.hh-margin-10 {
+	margin:10px;
+}
+.no-padding{
+	padding:0;
+}
+
 .hh-pb-30 {
     padding-bottom:30px;
 }
@@ -37,11 +43,26 @@ ul , ol , li {
 	padding-left:0;
 	padding-right:0;
 }
+.hh-plr-10 {
+	padding-left:10px;
+	padding-right:10px;
+}
+.hh-ptp-10 {
+	padding-top:10px;
+	padding-bottom:10px;
+}
 .hh-padding-10 {
 	padding:10px;
 }
-.hh-font-size-14{
-	font-size:14px;
+
+.hh-font-weight{
+	font-weight:bold;
+}
+
+@for $size from 10 through 18 {
+	.hh-font-size-#{$size} {
+		font-size: #{$size}px;
+	}
 }
 .border-div{
 	border: 1px solid #ccc;

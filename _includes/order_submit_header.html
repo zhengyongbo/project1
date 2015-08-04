@@ -1,0 +1,13 @@
+<div class="hh-order_submit_header">
+	<div class="btn-group-justified order-header-icons">
+		{% for item in site.data.order_submit_header %}
+			<a href="javascript:void(0)" class="{% if forloop.index <= page.step %} {{  'active' }} {% endif %}">
+				<div class="btn btn-info btn-fab btn-raised {{ item.icon }}"></div>
+				<div><small>{{ item.text }}</small></div>
+			</a>
+	    {% endfor %}
+	</div>
+	<div class="progress">
+	    <div class="progress-bar progress-bar-info" style="width: {{ page.step | minus:1 | times:25 }}%"></div>
+	</div>
+</div>

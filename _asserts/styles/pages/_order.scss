@@ -22,3 +22,37 @@
 	box-shadow:none;
 	border:none;
 }
+/*hh-order_submit_header*/
+.hh-order_submit_header .order-header-icons > a {
+	 display:table-cell;
+	 padding:20px 0 10px 0;
+	 text-align:center;
+	 color:$hover-font-color1;
+	 text-decoration:none;
+}
+.hh-order_submit_header .order-header-icons > a.active {
+	 color:$main-bg-color;
+}
+.hh-order_submit_header .order-header-icons > a .btn-info , .hh-order_submit_header .order-header-icons > a .btn-info:hover:not(.btn-link):not(.btn-flat) {
+	 background:$main-border-color;
+}
+.hh-order_submit_header .order-header-icons > a.active .btn-info , .hh-order_submit_header .order-header-icons > a.active .btn-info:hover:not(.btn-link):not(.btn-flat) {
+	 background:$main-bg-color;
+}
+.hh-order_submit_header .btn{
+	padding: 15px 0 8px 0;
+}
+.hh-order_submit_header .progress{
+	width:80%;
+	height:10px;
+	margin:-70px auto 70px auto;
+	background:$main-border-color;
+}
+.hh-order_submit_header .progress .progress-bar-info {
+    background-color:$main-bg-color;
+}
+/*hh-order_submit_2*/
+.hh-order_submit_2 .detail-row {
+	padding:5px 0;
+	border-bottom:dashed 1px $main-border-color;
+}

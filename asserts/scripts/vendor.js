@@ -14107,3 +14107,3899 @@ function closure ( target, options ){
   };
 
 })(jQuery, window, document);
+
+// moment.js
+// version : 2.0.0
+// author : Tim Wood
+// license : MIT
+// momentjs.com
+
+(function (undefined) {
+
+    /************************************
+        Constants
+    ************************************/
+
+    var moment,
+        VERSION = "2.0.0",
+        round = Math.round, i,
+        // internal storage for language config files
+        languages = {},
+
+        // check for nodeJS
+        hasModule = (typeof module !== 'undefined' && module.exports),
+
+        // ASP.NET json date format regex
+        aspNetJsonRegex = /^\/?Date\((\-?\d+)/i,
+
+        // format tokens
+        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|YYYYY|YYYY|YY|a|A|hh?|HH?|mm?|ss?|SS?S?|X|zz?|ZZ?|.)/g,
+        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LT|LL?L?L?|l{1,4})/g,
+
+        // parsing tokens
+        parseMultipleFormatChunker = /([0-9a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)/gi,
+
+        // parsing token regexes
+        parseTokenOneOrTwoDigits = /\d\d?/, // 0 - 99
+        parseTokenOneToThreeDigits = /\d{1,3}/, // 0 - 999
+        parseTokenThreeDigits = /\d{3}/, // 000 - 999
+        parseTokenFourDigits = /\d{1,4}/, // 0 - 9999
+        parseTokenSixDigits = /[+\-]?\d{1,6}/, // -999,999 - 999,999
+        parseTokenWord = /[0-9]*[a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF]+\s*?[\u0600-\u06FF]+/i, // any word (or two) characters or numbers including two word month in arabic.
+        parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/i, // +00:00 -00:00 +0000 -0000 or Z
+        parseTokenT = /T/i, // T (ISO seperator)
+        parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
+
+        // preliminary iso regex
+        // 0000-00-00 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000
+        isoRegex = /^\s*\d{4}-\d\d-\d\d((T| )(\d\d(:\d\d(:\d\d(\.\d\d?\d?)?)?)?)?([\+\-]\d\d:?\d\d)?)?/,
+        isoFormat = 'YYYY-MM-DDTHH:mm:ssZ',
+
+        // iso time formats and regexes
+        isoTimes = [
+            ['HH:mm:ss.S', /(T| )\d\d:\d\d:\d\d\.\d{1,3}/],
+            ['HH:mm:ss', /(T| )\d\d:\d\d:\d\d/],
+            ['HH:mm', /(T| )\d\d:\d\d/],
+            ['HH', /(T| )\d\d/]
+        ],
+
+        // timezone chunker "+10:00" > ["10", "00"] or "-1530" > ["-15", "30"]
+        parseTimezoneChunker = /([\+\-]|\d\d)/gi,
+
+        // getter and setter names
+        proxyGettersAndSetters = 'Month|Date|Hours|Minutes|Seconds|Milliseconds'.split('|'),
+        unitMillisecondFactors = {
+            'Milliseconds' : 1,
+            'Seconds' : 1e3,
+            'Minutes' : 6e4,
+            'Hours' : 36e5,
+            'Days' : 864e5,
+            'Months' : 2592e6,
+            'Years' : 31536e6
+        },
+
+        // format function strings
+        formatFunctions = {},
+
+        // tokens to ordinalize and pad
+        ordinalizeTokens = 'DDD w W M D d'.split(' '),
+        paddedTokens = 'M D H h m s w W'.split(' '),
+
+        formatTokenFunctions = {
+            M    : function () {
+                return this.month() + 1;
+            },
+            MMM  : function (format) {
+                return this.lang().monthsShort(this, format);
+            },
+            MMMM : function (format) {
+                return this.lang().months(this, format);
+            },
+            D    : function () {
+                return this.date();
+            },
+            DDD  : function () {
+                return this.dayOfYear();
+            },
+            d    : function () {
+                return this.day();
+            },
+            dd   : function (format) {
+                return this.lang().weekdaysMin(this, format);
+            },
+            ddd  : function (format) {
+                return this.lang().weekdaysShort(this, format);
+            },
+            dddd : function (format) {
+                return this.lang().weekdays(this, format);
+            },
+            w    : function () {
+                return this.week();
+            },
+            W    : function () {
+                return this.isoWeek();
+            },
+            YY   : function () {
+                return leftZeroFill(this.year() % 100, 2);
+            },
+            YYYY : function () {
+                return leftZeroFill(this.year(), 4);
+            },
+            YYYYY : function () {
+                return leftZeroFill(this.year(), 5);
+            },
+            a    : function () {
+                return this.lang().meridiem(this.hours(), this.minutes(), true);
+            },
+            A    : function () {
+                return this.lang().meridiem(this.hours(), this.minutes(), false);
+            },
+            H    : function () {
+                return this.hours();
+            },
+            h    : function () {
+                return this.hours() % 12 || 12;
+            },
+            m    : function () {
+                return this.minutes();
+            },
+            s    : function () {
+                return this.seconds();
+            },
+            S    : function () {
+                return ~~(this.milliseconds() / 100);
+            },
+            SS   : function () {
+                return leftZeroFill(~~(this.milliseconds() / 10), 2);
+            },
+            SSS  : function () {
+                return leftZeroFill(this.milliseconds(), 3);
+            },
+            Z    : function () {
+                var a = -this.zone(),
+                    b = "+";
+                if (a < 0) {
+                    a = -a;
+                    b = "-";
+                }
+                return b + leftZeroFill(~~(a / 60), 2) + ":" + leftZeroFill(~~a % 60, 2);
+            },
+            ZZ   : function () {
+                var a = -this.zone(),
+                    b = "+";
+                if (a < 0) {
+                    a = -a;
+                    b = "-";
+                }
+                return b + leftZeroFill(~~(10 * a / 6), 4);
+            },
+            X    : function () {
+                return this.unix();
+            }
+        };
+
+    function padToken(func, count) {
+        return function (a) {
+            return leftZeroFill(func.call(this, a), count);
+        };
+    }
+    function ordinalizeToken(func) {
+        return function (a) {
+            return this.lang().ordinal(func.call(this, a));
+        };
+    }
+
+    while (ordinalizeTokens.length) {
+        i = ordinalizeTokens.pop();
+        formatTokenFunctions[i + 'o'] = ordinalizeToken(formatTokenFunctions[i]);
+    }
+    while (paddedTokens.length) {
+        i = paddedTokens.pop();
+        formatTokenFunctions[i + i] = padToken(formatTokenFunctions[i], 2);
+    }
+    formatTokenFunctions.DDDD = padToken(formatTokenFunctions.DDD, 3);
+
+
+    /************************************
+        Constructors
+    ************************************/
+
+    function Language() {
+
+    }
+
+    // Moment prototype object
+    function Moment(config) {
+        extend(this, config);
+    }
+
+    // Duration Constructor
+    function Duration(duration) {
+        var data = this._data = {},
+            years = duration.years || duration.year || duration.y || 0,
+            months = duration.months || duration.month || duration.M || 0,
+            weeks = duration.weeks || duration.week || duration.w || 0,
+            days = duration.days || duration.day || duration.d || 0,
+            hours = duration.hours || duration.hour || duration.h || 0,
+            minutes = duration.minutes || duration.minute || duration.m || 0,
+            seconds = duration.seconds || duration.second || duration.s || 0,
+            milliseconds = duration.milliseconds || duration.millisecond || duration.ms || 0;
+
+        // representation for dateAddRemove
+        this._milliseconds = milliseconds +
+            seconds * 1e3 + // 1000
+            minutes * 6e4 + // 1000 * 60
+            hours * 36e5; // 1000 * 60 * 60
+        // Because of dateAddRemove treats 24 hours as different from a
+        // day when working around DST, we need to store them separately
+        this._days = days +
+            weeks * 7;
+        // It is impossible translate months into days without knowing
+        // which months you are are talking about, so we have to store
+        // it separately.
+        this._months = months +
+            years * 12;
+
+        // The following code bubbles up values, see the tests for
+        // examples of what that means.
+        data.milliseconds = milliseconds % 1000;
+        seconds += absRound(milliseconds / 1000);
+
+        data.seconds = seconds % 60;
+        minutes += absRound(seconds / 60);
+
+        data.minutes = minutes % 60;
+        hours += absRound(minutes / 60);
+
+        data.hours = hours % 24;
+        days += absRound(hours / 24);
+
+        days += weeks * 7;
+        data.days = days % 30;
+
+        months += absRound(days / 30);
+
+        data.months = months % 12;
+        years += absRound(months / 12);
+
+        data.years = years;
+    }
+
+
+    /************************************
+        Helpers
+    ************************************/
+
+
+    function extend(a, b) {
+        for (var i in b) {
+            if (b.hasOwnProperty(i)) {
+                a[i] = b[i];
+            }
+        }
+        return a;
+    }
+
+    function absRound(number) {
+        if (number < 0) {
+            return Math.ceil(number);
+        } else {
+            return Math.floor(number);
+        }
+    }
+
+    // left zero fill a number
+    // see http://jsperf.com/left-zero-filling for performance comparison
+    function leftZeroFill(number, targetLength) {
+        var output = number + '';
+        while (output.length < targetLength) {
+            output = '0' + output;
+        }
+        return output;
+    }
+
+    // helper function for _.addTime and _.subtractTime
+    function addOrSubtractDurationFromMoment(mom, duration, isAdding) {
+        var ms = duration._milliseconds,
+            d = duration._days,
+            M = duration._months,
+            currentDate;
+
+        if (ms) {
+            mom._d.setTime(+mom + ms * isAdding);
+        }
+        if (d) {
+            mom.date(mom.date() + d * isAdding);
+        }
+        if (M) {
+            currentDate = mom.date();
+            mom.date(1)
+                .month(mom.month() + M * isAdding)
+                .date(Math.min(currentDate, mom.daysInMonth()));
+        }
+    }
+
+    // check if is an array
+    function isArray(input) {
+        return Object.prototype.toString.call(input) === '[object Array]';
+    }
+
+    // compare two arrays, return the number of differences
+    function compareArrays(array1, array2) {
+        var len = Math.min(array1.length, array2.length),
+            lengthDiff = Math.abs(array1.length - array2.length),
+            diffs = 0,
+            i;
+        for (i = 0; i < len; i++) {
+            if (~~array1[i] !== ~~array2[i]) {
+                diffs++;
+            }
+        }
+        return diffs + lengthDiff;
+    }
+
+
+    /************************************
+        Languages
+    ************************************/
+
+
+    Language.prototype = {
+        set : function (config) {
+            var prop, i;
+            for (i in config) {
+                prop = config[i];
+                if (typeof prop === 'function') {
+                    this[i] = prop;
+                } else {
+                    this['_' + i] = prop;
+                }
+            }
+        },
+
+        _months : "January_February_March_April_May_June_July_August_September_October_November_December".split("_"),
+        months : function (m) {
+            return this._months[m.month()];
+        },
+
+        _monthsShort : "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split("_"),
+        monthsShort : function (m) {
+            return this._monthsShort[m.month()];
+        },
+
+        monthsParse : function (monthName) {
+            var i, mom, regex, output;
+
+            if (!this._monthsParse) {
+                this._monthsParse = [];
+            }
+
+            for (i = 0; i < 12; i++) {
+                // make the regex if we don't have it already
+                if (!this._monthsParse[i]) {
+                    mom = moment([2000, i]);
+                    regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
+                    this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
+                }
+                // test the regex
+                if (this._monthsParse[i].test(monthName)) {
+                    return i;
+                }
+            }
+        },
+
+        _weekdays : "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),
+        weekdays : function (m) {
+            return this._weekdays[m.day()];
+        },
+
+        _weekdaysShort : "Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),
+        weekdaysShort : function (m) {
+            return this._weekdaysShort[m.day()];
+        },
+
+        _weekdaysMin : "Su_Mo_Tu_We_Th_Fr_Sa".split("_"),
+        weekdaysMin : function (m) {
+            return this._weekdaysMin[m.day()];
+        },
+
+        _longDateFormat : {
+            LT : "h:mm A",
+            L : "MM/DD/YYYY",
+            LL : "MMMM D YYYY",
+            LLL : "MMMM D YYYY LT",
+            LLLL : "dddd, MMMM D YYYY LT"
+        },
+        longDateFormat : function (key) {
+            var output = this._longDateFormat[key];
+            if (!output && this._longDateFormat[key.toUpperCase()]) {
+                output = this._longDateFormat[key.toUpperCase()].replace(/MMMM|MM|DD|dddd/g, function (val) {
+                    return val.slice(1);
+                });
+                this._longDateFormat[key] = output;
+            }
+            return output;
+        },
+
+        meridiem : function (hours, minutes, isLower) {
+            if (hours > 11) {
+                return isLower ? 'pm' : 'PM';
+            } else {
+                return isLower ? 'am' : 'AM';
+            }
+        },
+
+        _calendar : {
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            nextWeek : 'dddd [at] LT',
+            lastDay : '[Yesterday at] LT',
+            lastWeek : '[last] dddd [at] LT',
+            sameElse : 'L'
+        },
+        calendar : function (key, mom) {
+            var output = this._calendar[key];
+            return typeof output === 'function' ? output.apply(mom) : output;
+        },
+
+        _relativeTime : {
+            future : "in %s",
+            past : "%s ago",
+            s : "a few seconds",
+            m : "a minute",
+            mm : "%d minutes",
+            h : "an hour",
+            hh : "%d hours",
+            d : "a day",
+            dd : "%d days",
+            M : "a month",
+            MM : "%d months",
+            y : "a year",
+            yy : "%d years"
+        },
+        relativeTime : function (number, withoutSuffix, string, isFuture) {
+            var output = this._relativeTime[string];
+            return (typeof output === 'function') ?
+                output(number, withoutSuffix, string, isFuture) :
+                output.replace(/%d/i, number);
+        },
+        pastFuture : function (diff, output) {
+            var format = this._relativeTime[diff > 0 ? 'future' : 'past'];
+            return typeof format === 'function' ? format(output) : format.replace(/%s/i, output);
+        },
+
+        ordinal : function (number) {
+            return this._ordinal.replace("%d", number);
+        },
+        _ordinal : "%d",
+
+        preparse : function (string) {
+            return string;
+        },
+
+        postformat : function (string) {
+            return string;
+        },
+
+        week : function (mom) {
+            return weekOfYear(mom, this._week.dow, this._week.doy);
+        },
+        _week : {
+            dow : 0, // Sunday is the first day of the week.
+            doy : 6  // The week that contains Jan 1st is the first week of the year.
+        }
+    };
+
+    // Loads a language definition into the `languages` cache.  The function
+    // takes a key and optionally values.  If not in the browser and no values
+    // are provided, it will load the language file module.  As a convenience,
+    // this function also returns the language values.
+    function loadLang(key, values) {
+        values.abbr = key;
+        if (!languages[key]) {
+            languages[key] = new Language();
+        }
+        languages[key].set(values);
+        return languages[key];
+    }
+
+    // Determines which language definition to use and returns it.
+    //
+    // With no parameters, it will return the global language.  If you
+    // pass in a language key, such as 'en', it will return the
+    // definition for 'en', so long as 'en' has already been loaded using
+    // moment.lang.
+    function getLangDefinition(key) {
+        if (!key) {
+            return moment.fn._lang;
+        }
+        if (!languages[key] && hasModule) {
+            require('./lang/' + key);
+        }
+        return languages[key];
+    }
+
+
+    /************************************
+        Formatting
+    ************************************/
+
+
+    function removeFormattingTokens(input) {
+        if (input.match(/\[.*\]/)) {
+            return input.replace(/^\[|\]$/g, "");
+        }
+        return input.replace(/\\/g, "");
+    }
+
+    function makeFormatFunction(format) {
+        var array = format.match(formattingTokens), i, length;
+
+        for (i = 0, length = array.length; i < length; i++) {
+            if (formatTokenFunctions[array[i]]) {
+                array[i] = formatTokenFunctions[array[i]];
+            } else {
+                array[i] = removeFormattingTokens(array[i]);
+            }
+        }
+
+        return function (mom) {
+            var output = "";
+            for (i = 0; i < length; i++) {
+                output += typeof array[i].call === 'function' ? array[i].call(mom, format) : array[i];
+            }
+            return output;
+        };
+    }
+
+    // format date using native date object
+    function formatMoment(m, format) {
+        var i = 5;
+
+        function replaceLongDateFormatTokens(input) {
+            return m.lang().longDateFormat(input) || input;
+        }
+
+        while (i-- && localFormattingTokens.test(format)) {
+            format = format.replace(localFormattingTokens, replaceLongDateFormatTokens);
+        }
+
+        if (!formatFunctions[format]) {
+            formatFunctions[format] = makeFormatFunction(format);
+        }
+
+        return formatFunctions[format](m);
+    }
+
+
+    /************************************
+        Parsing
+    ************************************/
+
+
+    // get the regex to find the next token
+    function getParseRegexForToken(token) {
+        switch (token) {
+        case 'DDDD':
+            return parseTokenThreeDigits;
+        case 'YYYY':
+            return parseTokenFourDigits;
+        case 'YYYYY':
+            return parseTokenSixDigits;
+        case 'S':
+        case 'SS':
+        case 'SSS':
+        case 'DDD':
+            return parseTokenOneToThreeDigits;
+        case 'MMM':
+        case 'MMMM':
+        case 'dd':
+        case 'ddd':
+        case 'dddd':
+        case 'a':
+        case 'A':
+            return parseTokenWord;
+        case 'X':
+            return parseTokenTimestampMs;
+        case 'Z':
+        case 'ZZ':
+            return parseTokenTimezone;
+        case 'T':
+            return parseTokenT;
+        case 'MM':
+        case 'DD':
+        case 'YY':
+        case 'HH':
+        case 'hh':
+        case 'mm':
+        case 'ss':
+        case 'M':
+        case 'D':
+        case 'd':
+        case 'H':
+        case 'h':
+        case 'm':
+        case 's':
+            return parseTokenOneOrTwoDigits;
+        default :
+            return new RegExp(token.replace('\\', ''));
+        }
+    }
+
+    // function to convert string input to date
+    function addTimeToArrayFromToken(token, input, config) {
+        var a, b,
+            datePartArray = config._a;
+
+        switch (token) {
+        // MONTH
+        case 'M' : // fall through to MM
+        case 'MM' :
+            datePartArray[1] = (input == null) ? 0 : ~~input - 1;
+            break;
+        case 'MMM' : // fall through to MMMM
+        case 'MMMM' :
+            a = getLangDefinition(config._l).monthsParse(input);
+            // if we didn't find a month name, mark the date as invalid.
+            if (a != null) {
+                datePartArray[1] = a;
+            } else {
+                config._isValid = false;
+            }
+            break;
+        // DAY OF MONTH
+        case 'D' : // fall through to DDDD
+        case 'DD' : // fall through to DDDD
+        case 'DDD' : // fall through to DDDD
+        case 'DDDD' :
+            if (input != null) {
+                datePartArray[2] = ~~input;
+            }
+            break;
+        // YEAR
+        case 'YY' :
+            datePartArray[0] = ~~input + (~~input > 68 ? 1900 : 2000);
+            break;
+        case 'YYYY' :
+        case 'YYYYY' :
+            datePartArray[0] = ~~input;
+            break;
+        // AM / PM
+        case 'a' : // fall through to A
+        case 'A' :
+            config._isPm = ((input + '').toLowerCase() === 'pm');
+            break;
+        // 24 HOUR
+        case 'H' : // fall through to hh
+        case 'HH' : // fall through to hh
+        case 'h' : // fall through to hh
+        case 'hh' :
+            datePartArray[3] = ~~input;
+            break;
+        // MINUTE
+        case 'm' : // fall through to mm
+        case 'mm' :
+            datePartArray[4] = ~~input;
+            break;
+        // SECOND
+        case 's' : // fall through to ss
+        case 'ss' :
+            datePartArray[5] = ~~input;
+            break;
+        // MILLISECOND
+        case 'S' :
+        case 'SS' :
+        case 'SSS' :
+            datePartArray[6] = ~~ (('0.' + input) * 1000);
+            break;
+        // UNIX TIMESTAMP WITH MS
+        case 'X':
+            config._d = new Date(parseFloat(input) * 1000);
+            break;
+        // TIMEZONE
+        case 'Z' : // fall through to ZZ
+        case 'ZZ' :
+            config._useUTC = true;
+            a = (input + '').match(parseTimezoneChunker);
+            if (a && a[1]) {
+                config._tzh = ~~a[1];
+            }
+            if (a && a[2]) {
+                config._tzm = ~~a[2];
+            }
+            // reverse offsets
+            if (a && a[0] === '+') {
+                config._tzh = -config._tzh;
+                config._tzm = -config._tzm;
+            }
+            break;
+        }
+
+        // if the input is null, the date is not valid
+        if (input == null) {
+            config._isValid = false;
+        }
+    }
+
+    // convert an array to a date.
+    // the array should mirror the parameters below
+    // note: all values past the year are optional and will default to the lowest possible value.
+    // [year, month, day , hour, minute, second, millisecond]
+    function dateFromArray(config) {
+        var i, date, input = [];
+
+        if (config._d) {
+            return;
+        }
+
+        for (i = 0; i < 7; i++) {
+            config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
+        }
+
+        // add the offsets to the time to be parsed so that we can have a clean array for checking isValid
+        input[3] += config._tzh || 0;
+        input[4] += config._tzm || 0;
+
+        date = new Date(0);
+
+        if (config._useUTC) {
+            date.setUTCFullYear(input[0], input[1], input[2]);
+            date.setUTCHours(input[3], input[4], input[5], input[6]);
+        } else {
+            date.setFullYear(input[0], input[1], input[2]);
+            date.setHours(input[3], input[4], input[5], input[6]);
+        }
+
+        config._d = date;
+    }
+
+    // date from string and format string
+    function makeDateFromStringAndFormat(config) {
+        // This array is used to make a Date, either with `new Date` or `Date.UTC`
+        var tokens = config._f.match(formattingTokens),
+            string = config._i,
+            i, parsedInput;
+
+        config._a = [];
+
+        for (i = 0; i < tokens.length; i++) {
+            parsedInput = (getParseRegexForToken(tokens[i]).exec(string) || [])[0];
+            if (parsedInput) {
+                string = string.slice(string.indexOf(parsedInput) + parsedInput.length);
+            }
+            // don't parse if its not a known token
+            if (formatTokenFunctions[tokens[i]]) {
+                addTimeToArrayFromToken(tokens[i], parsedInput, config);
+            }
+        }
+        // handle am pm
+        if (config._isPm && config._a[3] < 12) {
+            config._a[3] += 12;
+        }
+        // if is 12 am, change hours to 0
+        if (config._isPm === false && config._a[3] === 12) {
+            config._a[3] = 0;
+        }
+        // return
+        dateFromArray(config);
+    }
+
+    // date from string and array of format strings
+    function makeDateFromStringAndArray(config) {
+        var tempConfig,
+            tempMoment,
+            bestMoment,
+
+            scoreToBeat = 99,
+            i,
+            currentDate,
+            currentScore;
+
+        while (config._f.length) {
+            tempConfig = extend({}, config);
+            tempConfig._f = config._f.pop();
+            makeDateFromStringAndFormat(tempConfig);
+            tempMoment = new Moment(tempConfig);
+
+            if (tempMoment.isValid()) {
+                bestMoment = tempMoment;
+                break;
+            }
+
+            currentScore = compareArrays(tempConfig._a, tempMoment.toArray());
+
+            if (currentScore < scoreToBeat) {
+                scoreToBeat = currentScore;
+                bestMoment = tempMoment;
+            }
+        }
+
+        extend(config, bestMoment);
+    }
+
+    // date from iso format
+    function makeDateFromString(config) {
+        var i,
+            string = config._i;
+        if (isoRegex.exec(string)) {
+            config._f = 'YYYY-MM-DDT';
+            for (i = 0; i < 4; i++) {
+                if (isoTimes[i][1].exec(string)) {
+                    config._f += isoTimes[i][0];
+                    break;
+                }
+            }
+            if (parseTokenTimezone.exec(string)) {
+                config._f += " Z";
+            }
+            makeDateFromStringAndFormat(config);
+        } else {
+            config._d = new Date(string);
+        }
+    }
+
+    function makeDateFromInput(config) {
+        var input = config._i,
+            matched = aspNetJsonRegex.exec(input);
+
+        if (input === undefined) {
+            config._d = new Date();
+        } else if (matched) {
+            config._d = new Date(+matched[1]);
+        } else if (typeof input === 'string') {
+            makeDateFromString(config);
+        } else if (isArray(input)) {
+            config._a = input.slice(0);
+            dateFromArray(config);
+        } else {
+            config._d = input instanceof Date ? new Date(+input) : new Date(input);
+        }
+    }
+
+
+    /************************************
+        Relative Time
+    ************************************/
+
+
+    // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
+    function substituteTimeAgo(string, number, withoutSuffix, isFuture, lang) {
+        return lang.relativeTime(number || 1, !!withoutSuffix, string, isFuture);
+    }
+
+    function relativeTime(milliseconds, withoutSuffix, lang) {
+        var seconds = round(Math.abs(milliseconds) / 1000),
+            minutes = round(seconds / 60),
+            hours = round(minutes / 60),
+            days = round(hours / 24),
+            years = round(days / 365),
+            args = seconds < 45 && ['s', seconds] ||
+                minutes === 1 && ['m'] ||
+                minutes < 45 && ['mm', minutes] ||
+                hours === 1 && ['h'] ||
+                hours < 22 && ['hh', hours] ||
+                days === 1 && ['d'] ||
+                days <= 25 && ['dd', days] ||
+                days <= 45 && ['M'] ||
+                days < 345 && ['MM', round(days / 30)] ||
+                years === 1 && ['y'] || ['yy', years];
+        args[2] = withoutSuffix;
+        args[3] = milliseconds > 0;
+        args[4] = lang;
+        return substituteTimeAgo.apply({}, args);
+    }
+
+
+    /************************************
+        Week of Year
+    ************************************/
+
+
+    // firstDayOfWeek       0 = sun, 6 = sat
+    //                      the day of the week that starts the week
+    //                      (usually sunday or monday)
+    // firstDayOfWeekOfYear 0 = sun, 6 = sat
+    //                      the first week is the week that contains the first
+    //                      of this day of the week
+    //                      (eg. ISO weeks use thursday (4))
+    function weekOfYear(mom, firstDayOfWeek, firstDayOfWeekOfYear) {
+        var end = firstDayOfWeekOfYear - firstDayOfWeek,
+            daysToDayOfWeek = firstDayOfWeekOfYear - mom.day();
+
+
+        if (daysToDayOfWeek > end) {
+            daysToDayOfWeek -= 7;
+        }
+
+        if (daysToDayOfWeek < end - 7) {
+            daysToDayOfWeek += 7;
+        }
+
+        return Math.ceil(moment(mom).add('d', daysToDayOfWeek).dayOfYear() / 7);
+    }
+
+
+    /************************************
+        Top Level Functions
+    ************************************/
+
+    function makeMoment(config) {
+        var input = config._i,
+            format = config._f;
+
+        if (input === null || input === '') {
+            return null;
+        }
+
+        if (typeof input === 'string') {
+            config._i = input = getLangDefinition().preparse(input);
+        }
+
+        if (moment.isMoment(input)) {
+            config = extend({}, input);
+            config._d = new Date(+input._d);
+        } else if (format) {
+            if (isArray(format)) {
+                makeDateFromStringAndArray(config);
+            } else {
+                makeDateFromStringAndFormat(config);
+            }
+        } else {
+            makeDateFromInput(config);
+        }
+
+        return new Moment(config);
+    }
+
+    moment = function (input, format, lang) {
+        return makeMoment({
+            _i : input,
+            _f : format,
+            _l : lang,
+            _isUTC : false
+        });
+    };
+
+    // creating with utc
+    moment.utc = function (input, format, lang) {
+        return makeMoment({
+            _useUTC : true,
+            _isUTC : true,
+            _l : lang,
+            _i : input,
+            _f : format
+        });
+    };
+
+    // creating with unix timestamp (in seconds)
+    moment.unix = function (input) {
+        return moment(input * 1000);
+    };
+
+    // duration
+    moment.duration = function (input, key) {
+        var isDuration = moment.isDuration(input),
+            isNumber = (typeof input === 'number'),
+            duration = (isDuration ? input._data : (isNumber ? {} : input)),
+            ret;
+
+        if (isNumber) {
+            if (key) {
+                duration[key] = input;
+            } else {
+                duration.milliseconds = input;
+            }
+        }
+
+        ret = new Duration(duration);
+
+        if (isDuration && input.hasOwnProperty('_lang')) {
+            ret._lang = input._lang;
+        }
+
+        return ret;
+    };
+
+    // version number
+    moment.version = VERSION;
+
+    // default format
+    moment.defaultFormat = isoFormat;
+
+    // This function will load languages and then set the global language.  If
+    // no arguments are passed in, it will simply return the current global
+    // language key.
+    moment.lang = function (key, values) {
+        var i;
+
+        if (!key) {
+            return moment.fn._lang._abbr;
+        }
+        if (values) {
+            loadLang(key, values);
+        } else if (!languages[key]) {
+            getLangDefinition(key);
+        }
+        moment.duration.fn._lang = moment.fn._lang = getLangDefinition(key);
+    };
+
+    // returns language data
+    moment.langData = function (key) {
+        if (key && key._lang && key._lang._abbr) {
+            key = key._lang._abbr;
+        }
+        return getLangDefinition(key);
+    };
+
+    // compare moment object
+    moment.isMoment = function (obj) {
+        return obj instanceof Moment;
+    };
+
+    // for typechecking Duration objects
+    moment.isDuration = function (obj) {
+        return obj instanceof Duration;
+    };
+
+
+    /************************************
+        Moment Prototype
+    ************************************/
+
+
+    moment.fn = Moment.prototype = {
+
+        clone : function () {
+            return moment(this);
+        },
+
+        valueOf : function () {
+            return +this._d;
+        },
+
+        unix : function () {
+            return Math.floor(+this._d / 1000);
+        },
+
+        toString : function () {
+            return this.format("ddd MMM DD YYYY HH:mm:ss [GMT]ZZ");
+        },
+
+        toDate : function () {
+            return this._d;
+        },
+
+        toJSON : function () {
+            return moment.utc(this).format('YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+        },
+
+        toArray : function () {
+            var m = this;
+            return [
+                m.year(),
+                m.month(),
+                m.date(),
+                m.hours(),
+                m.minutes(),
+                m.seconds(),
+                m.milliseconds()
+            ];
+        },
+
+        isValid : function () {
+            if (this._isValid == null) {
+                if (this._a) {
+                    this._isValid = !compareArrays(this._a, (this._isUTC ? moment.utc(this._a) : moment(this._a)).toArray());
+                } else {
+                    this._isValid = !isNaN(this._d.getTime());
+                }
+            }
+            return !!this._isValid;
+        },
+
+        utc : function () {
+            this._isUTC = true;
+            return this;
+        },
+
+        local : function () {
+            this._isUTC = false;
+            return this;
+        },
+
+        format : function (inputString) {
+            var output = formatMoment(this, inputString || moment.defaultFormat);
+            return this.lang().postformat(output);
+        },
+
+        add : function (input, val) {
+            var dur;
+            // switch args to support add('s', 1) and add(1, 's')
+            if (typeof input === 'string') {
+                dur = moment.duration(+val, input);
+            } else {
+                dur = moment.duration(input, val);
+            }
+            addOrSubtractDurationFromMoment(this, dur, 1);
+            return this;
+        },
+
+        subtract : function (input, val) {
+            var dur;
+            // switch args to support subtract('s', 1) and subtract(1, 's')
+            if (typeof input === 'string') {
+                dur = moment.duration(+val, input);
+            } else {
+                dur = moment.duration(input, val);
+            }
+            addOrSubtractDurationFromMoment(this, dur, -1);
+            return this;
+        },
+
+        diff : function (input, units, asFloat) {
+            var that = this._isUTC ? moment(input).utc() : moment(input).local(),
+                zoneDiff = (this.zone() - that.zone()) * 6e4,
+                diff, output;
+
+            if (units) {
+                // standardize on singular form
+                units = units.replace(/s$/, '');
+            }
+
+            if (units === 'year' || units === 'month') {
+                diff = (this.daysInMonth() + that.daysInMonth()) * 432e5; // 24 * 60 * 60 * 1000 / 2
+                output = ((this.year() - that.year()) * 12) + (this.month() - that.month());
+                output += ((this - moment(this).startOf('month')) - (that - moment(that).startOf('month'))) / diff;
+                if (units === 'year') {
+                    output = output / 12;
+                }
+            } else {
+                diff = (this - that) - zoneDiff;
+                output = units === 'second' ? diff / 1e3 : // 1000
+                    units === 'minute' ? diff / 6e4 : // 1000 * 60
+                    units === 'hour' ? diff / 36e5 : // 1000 * 60 * 60
+                    units === 'day' ? diff / 864e5 : // 1000 * 60 * 60 * 24
+                    units === 'week' ? diff / 6048e5 : // 1000 * 60 * 60 * 24 * 7
+                    diff;
+            }
+            return asFloat ? output : absRound(output);
+        },
+
+        from : function (time, withoutSuffix) {
+            return moment.duration(this.diff(time)).lang(this.lang()._abbr).humanize(!withoutSuffix);
+        },
+
+        fromNow : function (withoutSuffix) {
+            return this.from(moment(), withoutSuffix);
+        },
+
+        calendar : function () {
+            var diff = this.diff(moment().startOf('day'), 'days', true),
+                format = diff < -6 ? 'sameElse' :
+                diff < -1 ? 'lastWeek' :
+                diff < 0 ? 'lastDay' :
+                diff < 1 ? 'sameDay' :
+                diff < 2 ? 'nextDay' :
+                diff < 7 ? 'nextWeek' : 'sameElse';
+            return this.format(this.lang().calendar(format, this));
+        },
+
+        isLeapYear : function () {
+            var year = this.year();
+            return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+        },
+
+        isDST : function () {
+            return (this.zone() < moment([this.year()]).zone() ||
+                this.zone() < moment([this.year(), 5]).zone());
+        },
+
+        day : function (input) {
+            var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
+            return input == null ? day :
+                this.add({ d : input - day });
+        },
+
+        startOf: function (units) {
+            units = units.replace(/s$/, '');
+            // the following switch intentionally omits break keywords
+            // to utilize falling through the cases.
+            switch (units) {
+            case 'year':
+                this.month(0);
+                /* falls through */
+            case 'month':
+                this.date(1);
+                /* falls through */
+            case 'week':
+            case 'day':
+                this.hours(0);
+                /* falls through */
+            case 'hour':
+                this.minutes(0);
+                /* falls through */
+            case 'minute':
+                this.seconds(0);
+                /* falls through */
+            case 'second':
+                this.milliseconds(0);
+                /* falls through */
+            }
+
+            // weeks are a special case
+            if (units === 'week') {
+                this.day(0);
+            }
+
+            return this;
+        },
+
+        endOf: function (units) {
+            return this.startOf(units).add(units.replace(/s?$/, 's'), 1).subtract('ms', 1);
+        },
+
+        isAfter: function (input, units) {
+            units = typeof units !== 'undefined' ? units : 'millisecond';
+            return +this.clone().startOf(units) > +moment(input).startOf(units);
+        },
+
+        isBefore: function (input, units) {
+            units = typeof units !== 'undefined' ? units : 'millisecond';
+            return +this.clone().startOf(units) < +moment(input).startOf(units);
+        },
+
+        isSame: function (input, units) {
+            units = typeof units !== 'undefined' ? units : 'millisecond';
+            return +this.clone().startOf(units) === +moment(input).startOf(units);
+        },
+
+        zone : function () {
+            return this._isUTC ? 0 : this._d.getTimezoneOffset();
+        },
+
+        daysInMonth : function () {
+            return moment.utc([this.year(), this.month() + 1, 0]).date();
+        },
+
+        dayOfYear : function (input) {
+            var dayOfYear = round((moment(this).startOf('day') - moment(this).startOf('year')) / 864e5) + 1;
+            return input == null ? dayOfYear : this.add("d", (input - dayOfYear));
+        },
+
+        isoWeek : function (input) {
+            var week = weekOfYear(this, 1, 4);
+            return input == null ? week : this.add("d", (input - week) * 7);
+        },
+
+        week : function (input) {
+            var week = this.lang().week(this);
+            return input == null ? week : this.add("d", (input - week) * 7);
+        },
+
+        // If passed a language key, it will set the language for this
+        // instance.  Otherwise, it will return the language configuration
+        // variables for this instance.
+        lang : function (key) {
+            if (key === undefined) {
+                return this._lang;
+            } else {
+                this._lang = getLangDefinition(key);
+                return this;
+            }
+        }
+    };
+
+    // helper for adding shortcuts
+    function makeGetterAndSetter(name, key) {
+        moment.fn[name] = moment.fn[name + 's'] = function (input) {
+            var utc = this._isUTC ? 'UTC' : '';
+            if (input != null) {
+                this._d['set' + utc + key](input);
+                return this;
+            } else {
+                return this._d['get' + utc + key]();
+            }
+        };
+    }
+
+    // loop through and add shortcuts (Month, Date, Hours, Minutes, Seconds, Milliseconds)
+    for (i = 0; i < proxyGettersAndSetters.length; i ++) {
+        makeGetterAndSetter(proxyGettersAndSetters[i].toLowerCase().replace(/s$/, ''), proxyGettersAndSetters[i]);
+    }
+
+    // add shortcut for year (uses different syntax than the getter/setter 'year' == 'FullYear')
+    makeGetterAndSetter('year', 'FullYear');
+
+    // add plural methods
+    moment.fn.days = moment.fn.day;
+    moment.fn.weeks = moment.fn.week;
+    moment.fn.isoWeeks = moment.fn.isoWeek;
+
+    /************************************
+        Duration Prototype
+    ************************************/
+
+
+    moment.duration.fn = Duration.prototype = {
+        weeks : function () {
+            return absRound(this.days() / 7);
+        },
+
+        valueOf : function () {
+            return this._milliseconds +
+              this._days * 864e5 +
+              this._months * 2592e6;
+        },
+
+        humanize : function (withSuffix) {
+            var difference = +this,
+                output = relativeTime(difference, !withSuffix, this.lang());
+
+            if (withSuffix) {
+                output = this.lang().pastFuture(difference, output);
+            }
+
+            return this.lang().postformat(output);
+        },
+
+        lang : moment.fn.lang
+    };
+
+    function makeDurationGetter(name) {
+        moment.duration.fn[name] = function () {
+            return this._data[name];
+        };
+    }
+
+    function makeDurationAsGetter(name, factor) {
+        moment.duration.fn['as' + name] = function () {
+            return +this / factor;
+        };
+    }
+
+    for (i in unitMillisecondFactors) {
+        if (unitMillisecondFactors.hasOwnProperty(i)) {
+            makeDurationAsGetter(i, unitMillisecondFactors[i]);
+            makeDurationGetter(i.toLowerCase());
+        }
+    }
+
+    makeDurationAsGetter('Weeks', 6048e5);
+
+
+    /************************************
+        Default Lang
+    ************************************/
+
+
+    // Set default language, other languages will inherit from English.
+    moment.lang('en', {
+        ordinal : function (number) {
+            var b = number % 10,
+                output = (~~ (number % 100 / 10) === 1) ? 'th' :
+                (b === 1) ? 'st' :
+                (b === 2) ? 'nd' :
+                (b === 3) ? 'rd' : 'th';
+            return number + output;
+        }
+    });
+
+
+    /************************************
+        Exposing Moment
+    ************************************/
+
+
+    // CommonJS module is defined
+    if (hasModule) {
+        module.exports = moment;
+    }
+    /*global ender:false */
+    if (typeof ender === 'undefined') {
+        // here, `this` means `window` in the browser, or `global` on the server
+        // add `moment` as a global object via a string identifier,
+        // for Closure Compiler "advanced" mode
+        this['moment'] = moment;
+    }
+    /*global define:false */
+    if (typeof define === "function" && define.amd) {
+        define("moment", [], function () {
+            return moment;
+        });
+    }
+}).call(this);
+
+//     Underscore.js 1.4.4
+//     http://underscorejs.org
+//     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
+//     Underscore may be freely distributed under the MIT license.
+
+(function() {
+
+  // Baseline setup
+  // --------------
+
+  // Establish the root object, `window` in the browser, or `global` on the server.
+  var root = this;
+
+  // Save the previous value of the `_` variable.
+  var previousUnderscore = root._;
+
+  // Establish the object that gets returned to break out of a loop iteration.
+  var breaker = {};
+
+  // Save bytes in the minified (but not gzipped) version:
+  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+
+  // Create quick reference variables for speed access to core prototypes.
+  var push             = ArrayProto.push,
+      slice            = ArrayProto.slice,
+      concat           = ArrayProto.concat,
+      toString         = ObjProto.toString,
+      hasOwnProperty   = ObjProto.hasOwnProperty;
+
+  // All **ECMAScript 5** native function implementations that we hope to use
+  // are declared here.
+  var
+    nativeForEach      = ArrayProto.forEach,
+    nativeMap          = ArrayProto.map,
+    nativeReduce       = ArrayProto.reduce,
+    nativeReduceRight  = ArrayProto.reduceRight,
+    nativeFilter       = ArrayProto.filter,
+    nativeEvery        = ArrayProto.every,
+    nativeSome         = ArrayProto.some,
+    nativeIndexOf      = ArrayProto.indexOf,
+    nativeLastIndexOf  = ArrayProto.lastIndexOf,
+    nativeIsArray      = Array.isArray,
+    nativeKeys         = Object.keys,
+    nativeBind         = FuncProto.bind;
+
+  // Create a safe reference to the Underscore object for use below.
+  var _ = function(obj) {
+    if (obj instanceof _) return obj;
+    if (!(this instanceof _)) return new _(obj);
+    this._wrapped = obj;
+  };
+
+  // Export the Underscore object for **Node.js**, with
+  // backwards-compatibility for the old `require()` API. If we're in
+  // the browser, add `_` as a global object via a string identifier,
+  // for Closure Compiler "advanced" mode.
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = _;
+    }
+    exports._ = _;
+  } else {
+    root._ = _;
+  }
+
+  // Current version.
+  _.VERSION = '1.4.4';
+
+  // Collection Functions
+  // --------------------
+
+  // The cornerstone, an `each` implementation, aka `forEach`.
+  // Handles objects with the built-in `forEach`, arrays, and raw objects.
+  // Delegates to **ECMAScript 5**'s native `forEach` if available.
+  var each = _.each = _.forEach = function(obj, iterator, context) {
+    if (obj == null) return;
+    if (nativeForEach && obj.forEach === nativeForEach) {
+      obj.forEach(iterator, context);
+    } else if (obj.length === +obj.length) {
+      for (var i = 0, l = obj.length; i < l; i++) {
+        if (iterator.call(context, obj[i], i, obj) === breaker) return;
+      }
+    } else {
+      for (var key in obj) {
+        if (_.has(obj, key)) {
+          if (iterator.call(context, obj[key], key, obj) === breaker) return;
+        }
+      }
+    }
+  };
+
+  // Return the results of applying the iterator to each element.
+  // Delegates to **ECMAScript 5**'s native `map` if available.
+  _.map = _.collect = function(obj, iterator, context) {
+    var results = [];
+    if (obj == null) return results;
+    if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);
+    each(obj, function(value, index, list) {
+      results[results.length] = iterator.call(context, value, index, list);
+    });
+    return results;
+  };
+
+  var reduceError = 'Reduce of empty array with no initial value';
+
+  // **Reduce** builds up a single result from a list of values, aka `inject`,
+  // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.
+  _.reduce = _.foldl = _.inject = function(obj, iterator, memo, context) {
+    var initial = arguments.length > 2;
+    if (obj == null) obj = [];
+    if (nativeReduce && obj.reduce === nativeReduce) {
+      if (context) iterator = _.bind(iterator, context);
+      return initial ? obj.reduce(iterator, memo) : obj.reduce(iterator);
+    }
+    each(obj, function(value, index, list) {
+      if (!initial) {
+        memo = value;
+        initial = true;
+      } else {
+        memo = iterator.call(context, memo, value, index, list);
+      }
+    });
+    if (!initial) throw new TypeError(reduceError);
+    return memo;
+  };
+
+  // The right-associative version of reduce, also known as `foldr`.
+  // Delegates to **ECMAScript 5**'s native `reduceRight` if available.
+  _.reduceRight = _.foldr = function(obj, iterator, memo, context) {
+    var initial = arguments.length > 2;
+    if (obj == null) obj = [];
+    if (nativeReduceRight && obj.reduceRight === nativeReduceRight) {
+      if (context) iterator = _.bind(iterator, context);
+      return initial ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);
+    }
+    var length = obj.length;
+    if (length !== +length) {
+      var keys = _.keys(obj);
+      length = keys.length;
+    }
+    each(obj, function(value, index, list) {
+      index = keys ? keys[--length] : --length;
+      if (!initial) {
+        memo = obj[index];
+        initial = true;
+      } else {
+        memo = iterator.call(context, memo, obj[index], index, list);
+      }
+    });
+    if (!initial) throw new TypeError(reduceError);
+    return memo;
+  };
+
+  // Return the first value which passes a truth test. Aliased as `detect`.
+  _.find = _.detect = function(obj, iterator, context) {
+    var result;
+    any(obj, function(value, index, list) {
+      if (iterator.call(context, value, index, list)) {
+        result = value;
+        return true;
+      }
+    });
+    return result;
+  };
+
+  // Return all the elements that pass a truth test.
+  // Delegates to **ECMAScript 5**'s native `filter` if available.
+  // Aliased as `select`.
+  _.filter = _.select = function(obj, iterator, context) {
+    var results = [];
+    if (obj == null) return results;
+    if (nativeFilter && obj.filter === nativeFilter) return obj.filter(iterator, context);
+    each(obj, function(value, index, list) {
+      if (iterator.call(context, value, index, list)) results[results.length] = value;
+    });
+    return results;
+  };
+
+  // Return all the elements for which a truth test fails.
+  _.reject = function(obj, iterator, context) {
+    return _.filter(obj, function(value, index, list) {
+      return !iterator.call(context, value, index, list);
+    }, context);
+  };
+
+  // Determine whether all of the elements match a truth test.
+  // Delegates to **ECMAScript 5**'s native `every` if available.
+  // Aliased as `all`.
+  _.every = _.all = function(obj, iterator, context) {
+    iterator || (iterator = _.identity);
+    var result = true;
+    if (obj == null) return result;
+    if (nativeEvery && obj.every === nativeEvery) return obj.every(iterator, context);
+    each(obj, function(value, index, list) {
+      if (!(result = result && iterator.call(context, value, index, list))) return breaker;
+    });
+    return !!result;
+  };
+
+  // Determine if at least one element in the object matches a truth test.
+  // Delegates to **ECMAScript 5**'s native `some` if available.
+  // Aliased as `any`.
+  var any = _.some = _.any = function(obj, iterator, context) {
+    iterator || (iterator = _.identity);
+    var result = false;
+    if (obj == null) return result;
+    if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
+    each(obj, function(value, index, list) {
+      if (result || (result = iterator.call(context, value, index, list))) return breaker;
+    });
+    return !!result;
+  };
+
+  // Determine if the array or object contains a given value (using `===`).
+  // Aliased as `include`.
+  _.contains = _.include = function(obj, target) {
+    if (obj == null) return false;
+    if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
+    return any(obj, function(value) {
+      return value === target;
+    });
+  };
+
+  // Invoke a method (with arguments) on every item in a collection.
+  _.invoke = function(obj, method) {
+    var args = slice.call(arguments, 2);
+    var isFunc = _.isFunction(method);
+    return _.map(obj, function(value) {
+      return (isFunc ? method : value[method]).apply(value, args);
+    });
+  };
+
+  // Convenience version of a common use case of `map`: fetching a property.
+  _.pluck = function(obj, key) {
+    return _.map(obj, function(value){ return value[key]; });
+  };
+
+  // Convenience version of a common use case of `filter`: selecting only objects
+  // containing specific `key:value` pairs.
+  _.where = function(obj, attrs, first) {
+    if (_.isEmpty(attrs)) return first ? null : [];
+    return _[first ? 'find' : 'filter'](obj, function(value) {
+      for (var key in attrs) {
+        if (attrs[key] !== value[key]) return false;
+      }
+      return true;
+    });
+  };
+
+  // Convenience version of a common use case of `find`: getting the first object
+  // containing specific `key:value` pairs.
+  _.findWhere = function(obj, attrs) {
+    return _.where(obj, attrs, true);
+  };
+
+  // Return the maximum element or (element-based computation).
+  // Can't optimize arrays of integers longer than 65,535 elements.
+  // See: https://bugs.webkit.org/show_bug.cgi?id=80797
+  _.max = function(obj, iterator, context) {
+    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+      return Math.max.apply(Math, obj);
+    }
+    if (!iterator && _.isEmpty(obj)) return -Infinity;
+    var result = {computed : -Infinity, value: -Infinity};
+    each(obj, function(value, index, list) {
+      var computed = iterator ? iterator.call(context, value, index, list) : value;
+      computed >= result.computed && (result = {value : value, computed : computed});
+    });
+    return result.value;
+  };
+
+  // Return the minimum element (or element-based computation).
+  _.min = function(obj, iterator, context) {
+    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+      return Math.min.apply(Math, obj);
+    }
+    if (!iterator && _.isEmpty(obj)) return Infinity;
+    var result = {computed : Infinity, value: Infinity};
+    each(obj, function(value, index, list) {
+      var computed = iterator ? iterator.call(context, value, index, list) : value;
+      computed < result.computed && (result = {value : value, computed : computed});
+    });
+    return result.value;
+  };
+
+  // Shuffle an array.
+  _.shuffle = function(obj) {
+    var rand;
+    var index = 0;
+    var shuffled = [];
+    each(obj, function(value) {
+      rand = _.random(index++);
+      shuffled[index - 1] = shuffled[rand];
+      shuffled[rand] = value;
+    });
+    return shuffled;
+  };
+
+  // An internal function to generate lookup iterators.
+  var lookupIterator = function(value) {
+    return _.isFunction(value) ? value : function(obj){ return obj[value]; };
+  };
+
+  // Sort the object's values by a criterion produced by an iterator.
+  _.sortBy = function(obj, value, context) {
+    var iterator = lookupIterator(value);
+    return _.pluck(_.map(obj, function(value, index, list) {
+      return {
+        value : value,
+        index : index,
+        criteria : iterator.call(context, value, index, list)
+      };
+    }).sort(function(left, right) {
+      var a = left.criteria;
+      var b = right.criteria;
+      if (a !== b) {
+        if (a > b || a === void 0) return 1;
+        if (a < b || b === void 0) return -1;
+      }
+      return left.index < right.index ? -1 : 1;
+    }), 'value');
+  };
+
+  // An internal function used for aggregate "group by" operations.
+  var group = function(obj, value, context, behavior) {
+    var result = {};
+    var iterator = lookupIterator(value || _.identity);
+    each(obj, function(value, index) {
+      var key = iterator.call(context, value, index, obj);
+      behavior(result, key, value);
+    });
+    return result;
+  };
+
+  // Groups the object's values by a criterion. Pass either a string attribute
+  // to group by, or a function that returns the criterion.
+  _.groupBy = function(obj, value, context) {
+    return group(obj, value, context, function(result, key, value) {
+      (_.has(result, key) ? result[key] : (result[key] = [])).push(value);
+    });
+  };
+
+  // Counts instances of an object that group by a certain criterion. Pass
+  // either a string attribute to count by, or a function that returns the
+  // criterion.
+  _.countBy = function(obj, value, context) {
+    return group(obj, value, context, function(result, key) {
+      if (!_.has(result, key)) result[key] = 0;
+      result[key]++;
+    });
+  };
+
+  // Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+  _.sortedIndex = function(array, obj, iterator, context) {
+    iterator = iterator == null ? _.identity : lookupIterator(iterator);
+    var value = iterator.call(context, obj);
+    var low = 0, high = array.length;
+    while (low < high) {
+      var mid = (low + high) >>> 1;
+      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+    }
+    return low;
+  };
+
+  // Safely convert anything iterable into a real, live array.
+  _.toArray = function(obj) {
+    if (!obj) return [];
+    if (_.isArray(obj)) return slice.call(obj);
+    if (obj.length === +obj.length) return _.map(obj, _.identity);
+    return _.values(obj);
+  };
+
+  // Return the number of elements in an object.
+  _.size = function(obj) {
+    if (obj == null) return 0;
+    return (obj.length === +obj.length) ? obj.length : _.keys(obj).length;
+  };
+
+  // Array Functions
+  // ---------------
+
+  // Get the first element of an array. Passing **n** will return the first N
+  // values in the array. Aliased as `head` and `take`. The **guard** check
+  // allows it to work with `_.map`.
+  _.first = _.head = _.take = function(array, n, guard) {
+    if (array == null) return void 0;
+    return (n != null) && !guard ? slice.call(array, 0, n) : array[0];
+  };
+
+  // Returns everything but the last entry of the array. Especially useful on
+  // the arguments object. Passing **n** will return all the values in
+  // the array, excluding the last N. The **guard** check allows it to work with
+  // `_.map`.
+  _.initial = function(array, n, guard) {
+    return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));
+  };
+
+  // Get the last element of an array. Passing **n** will return the last N
+  // values in the array. The **guard** check allows it to work with `_.map`.
+  _.last = function(array, n, guard) {
+    if (array == null) return void 0;
+    if ((n != null) && !guard) {
+      return slice.call(array, Math.max(array.length - n, 0));
+    } else {
+      return array[array.length - 1];
+    }
+  };
+
+  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
+  // Especially useful on the arguments object. Passing an **n** will return
+  // the rest N values in the array. The **guard**
+  // check allows it to work with `_.map`.
+  _.rest = _.tail = _.drop = function(array, n, guard) {
+    return slice.call(array, (n == null) || guard ? 1 : n);
+  };
+
+  // Trim out all falsy values from an array.
+  _.compact = function(array) {
+    return _.filter(array, _.identity);
+  };
+
+  // Internal implementation of a recursive `flatten` function.
+  var flatten = function(input, shallow, output) {
+    each(input, function(value) {
+      if (_.isArray(value)) {
+        shallow ? push.apply(output, value) : flatten(value, shallow, output);
+      } else {
+        output.push(value);
+      }
+    });
+    return output;
+  };
+
+  // Return a completely flattened version of an array.
+  _.flatten = function(array, shallow) {
+    return flatten(array, shallow, []);
+  };
+
+  // Return a version of the array that does not contain the specified value(s).
+  _.without = function(array) {
+    return _.difference(array, slice.call(arguments, 1));
+  };
+
+  // Produce a duplicate-free version of the array. If the array has already
+  // been sorted, you have the option of using a faster algorithm.
+  // Aliased as `unique`.
+  _.uniq = _.unique = function(array, isSorted, iterator, context) {
+    if (_.isFunction(isSorted)) {
+      context = iterator;
+      iterator = isSorted;
+      isSorted = false;
+    }
+    var initial = iterator ? _.map(array, iterator, context) : array;
+    var results = [];
+    var seen = [];
+    each(initial, function(value, index) {
+      if (isSorted ? (!index || seen[seen.length - 1] !== value) : !_.contains(seen, value)) {
+        seen.push(value);
+        results.push(array[index]);
+      }
+    });
+    return results;
+  };
+
+  // Produce an array that contains the union: each distinct element from all of
+  // the passed-in arrays.
+  _.union = function() {
+    return _.uniq(concat.apply(ArrayProto, arguments));
+  };
+
+  // Produce an array that contains every item shared between all the
+  // passed-in arrays.
+  _.intersection = function(array) {
+    var rest = slice.call(arguments, 1);
+    return _.filter(_.uniq(array), function(item) {
+      return _.every(rest, function(other) {
+        return _.indexOf(other, item) >= 0;
+      });
+    });
+  };
+
+  // Take the difference between one array and a number of other arrays.
+  // Only the elements present in just the first array will remain.
+  _.difference = function(array) {
+    var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
+    return _.filter(array, function(value){ return !_.contains(rest, value); });
+  };
+
+  // Zip together multiple lists into a single array -- elements that share
+  // an index go together.
+  _.zip = function() {
+    var args = slice.call(arguments);
+    var length = _.max(_.pluck(args, 'length'));
+    var results = new Array(length);
+    for (var i = 0; i < length; i++) {
+      results[i] = _.pluck(args, "" + i);
+    }
+    return results;
+  };
+
+  // Converts lists into objects. Pass either a single array of `[key, value]`
+  // pairs, or two parallel arrays of the same length -- one of keys, and one of
+  // the corresponding values.
+  _.object = function(list, values) {
+    if (list == null) return {};
+    var result = {};
+    for (var i = 0, l = list.length; i < l; i++) {
+      if (values) {
+        result[list[i]] = values[i];
+      } else {
+        result[list[i][0]] = list[i][1];
+      }
+    }
+    return result;
+  };
+
+  // If the browser doesn't supply us with indexOf (I'm looking at you, **MSIE**),
+  // we need this function. Return the position of the first occurrence of an
+  // item in an array, or -1 if the item is not included in the array.
+  // Delegates to **ECMAScript 5**'s native `indexOf` if available.
+  // If the array is large and already in sort order, pass `true`
+  // for **isSorted** to use binary search.
+  _.indexOf = function(array, item, isSorted) {
+    if (array == null) return -1;
+    var i = 0, l = array.length;
+    if (isSorted) {
+      if (typeof isSorted == 'number') {
+        i = (isSorted < 0 ? Math.max(0, l + isSorted) : isSorted);
+      } else {
+        i = _.sortedIndex(array, item);
+        return array[i] === item ? i : -1;
+      }
+    }
+    if (nativeIndexOf && array.indexOf === nativeIndexOf) return array.indexOf(item, isSorted);
+    for (; i < l; i++) if (array[i] === item) return i;
+    return -1;
+  };
+
+  // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
+  _.lastIndexOf = function(array, item, from) {
+    if (array == null) return -1;
+    var hasIndex = from != null;
+    if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) {
+      return hasIndex ? array.lastIndexOf(item, from) : array.lastIndexOf(item);
+    }
+    var i = (hasIndex ? from : array.length);
+    while (i--) if (array[i] === item) return i;
+    return -1;
+  };
+
+  // Generate an integer Array containing an arithmetic progression. A port of
+  // the native Python `range()` function. See
+  // [the Python documentation](http://docs.python.org/library/functions.html#range).
+  _.range = function(start, stop, step) {
+    if (arguments.length <= 1) {
+      stop = start || 0;
+      start = 0;
+    }
+    step = arguments[2] || 1;
+
+    var len = Math.max(Math.ceil((stop - start) / step), 0);
+    var idx = 0;
+    var range = new Array(len);
+
+    while(idx < len) {
+      range[idx++] = start;
+      start += step;
+    }
+
+    return range;
+  };
+
+  // Function (ahem) Functions
+  // ------------------
+
+  // Create a function bound to a given object (assigning `this`, and arguments,
+  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
+  // available.
+  _.bind = function(func, context) {
+    if (func.bind === nativeBind && nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+    var args = slice.call(arguments, 2);
+    return function() {
+      return func.apply(context, args.concat(slice.call(arguments)));
+    };
+  };
+
+  // Partially apply a function by creating a version that has had some of its
+  // arguments pre-filled, without changing its dynamic `this` context.
+  _.partial = function(func) {
+    var args = slice.call(arguments, 1);
+    return function() {
+      return func.apply(this, args.concat(slice.call(arguments)));
+    };
+  };
+
+  // Bind all of an object's methods to that object. Useful for ensuring that
+  // all callbacks defined on an object belong to it.
+  _.bindAll = function(obj) {
+    var funcs = slice.call(arguments, 1);
+    if (funcs.length === 0) funcs = _.functions(obj);
+    each(funcs, function(f) { obj[f] = _.bind(obj[f], obj); });
+    return obj;
+  };
+
+  // Memoize an expensive function by storing its results.
+  _.memoize = function(func, hasher) {
+    var memo = {};
+    hasher || (hasher = _.identity);
+    return function() {
+      var key = hasher.apply(this, arguments);
+      return _.has(memo, key) ? memo[key] : (memo[key] = func.apply(this, arguments));
+    };
+  };
+
+  // Delays a function for the given number of milliseconds, and then calls
+  // it with the arguments supplied.
+  _.delay = function(func, wait) {
+    var args = slice.call(arguments, 2);
+    return setTimeout(function(){ return func.apply(null, args); }, wait);
+  };
+
+  // Defers a function, scheduling it to run after the current call stack has
+  // cleared.
+  _.defer = function(func) {
+    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
+  };
+
+  // Returns a function, that, when invoked, will only be triggered at most once
+  // during a given window of time.
+  _.throttle = function(func, wait) {
+    var context, args, timeout, result;
+    var previous = 0;
+    var later = function() {
+      previous = new Date;
+      timeout = null;
+      result = func.apply(context, args);
+    };
+    return function() {
+      var now = new Date;
+      var remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0) {
+        clearTimeout(timeout);
+        timeout = null;
+        previous = now;
+        result = func.apply(context, args);
+      } else if (!timeout) {
+        timeout = setTimeout(later, remaining);
+      }
+      return result;
+    };
+  };
+
+  // Returns a function, that, as long as it continues to be invoked, will not
+  // be triggered. The function will be called after it stops being called for
+  // N milliseconds. If `immediate` is passed, trigger the function on the
+  // leading edge, instead of the trailing.
+  _.debounce = function(func, wait, immediate) {
+    var timeout, result;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) result = func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) result = func.apply(context, args);
+      return result;
+    };
+  };
+
+  // Returns a function that will be executed at most one time, no matter how
+  // often you call it. Useful for lazy initialization.
+  _.once = function(func) {
+    var ran = false, memo;
+    return function() {
+      if (ran) return memo;
+      ran = true;
+      memo = func.apply(this, arguments);
+      func = null;
+      return memo;
+    };
+  };
+
+  // Returns the first function passed as an argument to the second,
+  // allowing you to adjust arguments, run code before and after, and
+  // conditionally execute the original function.
+  _.wrap = function(func, wrapper) {
+    return function() {
+      var args = [func];
+      push.apply(args, arguments);
+      return wrapper.apply(this, args);
+    };
+  };
+
+  // Returns a function that is the composition of a list of functions, each
+  // consuming the return value of the function that follows.
+  _.compose = function() {
+    var funcs = arguments;
+    return function() {
+      var args = arguments;
+      for (var i = funcs.length - 1; i >= 0; i--) {
+        args = [funcs[i].apply(this, args)];
+      }
+      return args[0];
+    };
+  };
+
+  // Returns a function that will only be executed after being called N times.
+  _.after = function(times, func) {
+    if (times <= 0) return func();
+    return function() {
+      if (--times < 1) {
+        return func.apply(this, arguments);
+      }
+    };
+  };
+
+  // Object Functions
+  // ----------------
+
+  // Retrieve the names of an object's properties.
+  // Delegates to **ECMAScript 5**'s native `Object.keys`
+  _.keys = nativeKeys || function(obj) {
+    if (obj !== Object(obj)) throw new TypeError('Invalid object');
+    var keys = [];
+    for (var key in obj) if (_.has(obj, key)) keys[keys.length] = key;
+    return keys;
+  };
+
+  // Retrieve the values of an object's properties.
+  _.values = function(obj) {
+    var values = [];
+    for (var key in obj) if (_.has(obj, key)) values.push(obj[key]);
+    return values;
+  };
+
+  // Convert an object into a list of `[key, value]` pairs.
+  _.pairs = function(obj) {
+    var pairs = [];
+    for (var key in obj) if (_.has(obj, key)) pairs.push([key, obj[key]]);
+    return pairs;
+  };
+
+  // Invert the keys and values of an object. The values must be serializable.
+  _.invert = function(obj) {
+    var result = {};
+    for (var key in obj) if (_.has(obj, key)) result[obj[key]] = key;
+    return result;
+  };
+
+  // Return a sorted list of the function names available on the object.
+  // Aliased as `methods`
+  _.functions = _.methods = function(obj) {
+    var names = [];
+    for (var key in obj) {
+      if (_.isFunction(obj[key])) names.push(key);
+    }
+    return names.sort();
+  };
+
+  // Extend a given object with all the properties in passed-in object(s).
+  _.extend = function(obj) {
+    each(slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          obj[prop] = source[prop];
+        }
+      }
+    });
+    return obj;
+  };
+
+  // Return a copy of the object only containing the whitelisted properties.
+  _.pick = function(obj) {
+    var copy = {};
+    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+    each(keys, function(key) {
+      if (key in obj) copy[key] = obj[key];
+    });
+    return copy;
+  };
+
+   // Return a copy of the object without the blacklisted properties.
+  _.omit = function(obj) {
+    var copy = {};
+    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+    for (var key in obj) {
+      if (!_.contains(keys, key)) copy[key] = obj[key];
+    }
+    return copy;
+  };
+
+  // Fill in a given object with default properties.
+  _.defaults = function(obj) {
+    each(slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          if (obj[prop] == null) obj[prop] = source[prop];
+        }
+      }
+    });
+    return obj;
+  };
+
+  // Create a (shallow-cloned) duplicate of an object.
+  _.clone = function(obj) {
+    if (!_.isObject(obj)) return obj;
+    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+  };
+
+  // Invokes interceptor with the obj, and then returns obj.
+  // The primary purpose of this method is to "tap into" a method chain, in
+  // order to perform operations on intermediate results within the chain.
+  _.tap = function(obj, interceptor) {
+    interceptor(obj);
+    return obj;
+  };
+
+  // Internal recursive comparison function for `isEqual`.
+  var eq = function(a, b, aStack, bStack) {
+    // Identical objects are equal. `0 === -0`, but they aren't identical.
+    // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+    if (a === b) return a !== 0 || 1 / a == 1 / b;
+    // A strict comparison is necessary because `null == undefined`.
+    if (a == null || b == null) return a === b;
+    // Unwrap any wrapped objects.
+    if (a instanceof _) a = a._wrapped;
+    if (b instanceof _) b = b._wrapped;
+    // Compare `[[Class]]` names.
+    var className = toString.call(a);
+    if (className != toString.call(b)) return false;
+    switch (className) {
+      // Strings, numbers, dates, and booleans are compared by value.
+      case '[object String]':
+        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+        // equivalent to `new String("5")`.
+        return a == String(b);
+      case '[object Number]':
+        // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+        // other numeric values.
+        return a != +a ? b != +b : (a == 0 ? 1 / a == 1 / b : a == +b);
+      case '[object Date]':
+      case '[object Boolean]':
+        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+        // millisecond representations. Note that invalid dates with millisecond representations
+        // of `NaN` are not equivalent.
+        return +a == +b;
+      // RegExps are compared by their source patterns and flags.
+      case '[object RegExp]':
+        return a.source == b.source &&
+               a.global == b.global &&
+               a.multiline == b.multiline &&
+               a.ignoreCase == b.ignoreCase;
+    }
+    if (typeof a != 'object' || typeof b != 'object') return false;
+    // Assume equality for cyclic structures. The algorithm for detecting cyclic
+    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+    var length = aStack.length;
+    while (length--) {
+      // Linear search. Performance is inversely proportional to the number of
+      // unique nested structures.
+      if (aStack[length] == a) return bStack[length] == b;
+    }
+    // Add the first object to the stack of traversed objects.
+    aStack.push(a);
+    bStack.push(b);
+    var size = 0, result = true;
+    // Recursively compare objects and arrays.
+    if (className == '[object Array]') {
+      // Compare array lengths to determine if a deep comparison is necessary.
+      size = a.length;
+      result = size == b.length;
+      if (result) {
+        // Deep compare the contents, ignoring non-numeric properties.
+        while (size--) {
+          if (!(result = eq(a[size], b[size], aStack, bStack))) break;
+        }
+      }
+    } else {
+      // Objects with different constructors are not equivalent, but `Object`s
+      // from different frames are.
+      var aCtor = a.constructor, bCtor = b.constructor;
+      if (aCtor !== bCtor && !(_.isFunction(aCtor) && (aCtor instanceof aCtor) &&
+                               _.isFunction(bCtor) && (bCtor instanceof bCtor))) {
+        return false;
+      }
+      // Deep compare objects.
+      for (var key in a) {
+        if (_.has(a, key)) {
+          // Count the expected number of properties.
+          size++;
+          // Deep compare each member.
+          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
+        }
+      }
+      // Ensure that both objects contain the same number of properties.
+      if (result) {
+        for (key in b) {
+          if (_.has(b, key) && !(size--)) break;
+        }
+        result = !size;
+      }
+    }
+    // Remove the first object from the stack of traversed objects.
+    aStack.pop();
+    bStack.pop();
+    return result;
+  };
+
+  // Perform a deep comparison to check if two objects are equal.
+  _.isEqual = function(a, b) {
+    return eq(a, b, [], []);
+  };
+
+  // Is a given array, string, or object empty?
+  // An "empty" object has no enumerable own-properties.
+  _.isEmpty = function(obj) {
+    if (obj == null) return true;
+    if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
+    for (var key in obj) if (_.has(obj, key)) return false;
+    return true;
+  };
+
+  // Is a given value a DOM element?
+  _.isElement = function(obj) {
+    return !!(obj && obj.nodeType === 1);
+  };
+
+  // Is a given value an array?
+  // Delegates to ECMA5's native Array.isArray
+  _.isArray = nativeIsArray || function(obj) {
+    return toString.call(obj) == '[object Array]';
+  };
+
+  // Is a given variable an object?
+  _.isObject = function(obj) {
+    return obj === Object(obj);
+  };
+
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+    _['is' + name] = function(obj) {
+      return toString.call(obj) == '[object ' + name + ']';
+    };
+  });
+
+  // Define a fallback version of the method in browsers (ahem, IE), where
+  // there isn't any inspectable "Arguments" type.
+  if (!_.isArguments(arguments)) {
+    _.isArguments = function(obj) {
+      return !!(obj && _.has(obj, 'callee'));
+    };
+  }
+
+  // Optimize `isFunction` if appropriate.
+  if (typeof (/./) !== 'function') {
+    _.isFunction = function(obj) {
+      return typeof obj === 'function';
+    };
+  }
+
+  // Is a given object a finite number?
+  _.isFinite = function(obj) {
+    return isFinite(obj) && !isNaN(parseFloat(obj));
+  };
+
+  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+  _.isNaN = function(obj) {
+    return _.isNumber(obj) && obj != +obj;
+  };
+
+  // Is a given value a boolean?
+  _.isBoolean = function(obj) {
+    return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
+  };
+
+  // Is a given value equal to null?
+  _.isNull = function(obj) {
+    return obj === null;
+  };
+
+  // Is a given variable undefined?
+  _.isUndefined = function(obj) {
+    return obj === void 0;
+  };
+
+  // Shortcut function for checking if an object has a given property directly
+  // on itself (in other words, not on a prototype).
+  _.has = function(obj, key) {
+    return hasOwnProperty.call(obj, key);
+  };
+
+  // Utility Functions
+  // -----------------
+
+  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
+  // previous owner. Returns a reference to the Underscore object.
+  _.noConflict = function() {
+    root._ = previousUnderscore;
+    return this;
+  };
+
+  // Keep the identity function around for default iterators.
+  _.identity = function(value) {
+    return value;
+  };
+
+  // Run a function **n** times.
+  _.times = function(n, iterator, context) {
+    var accum = Array(n);
+    for (var i = 0; i < n; i++) accum[i] = iterator.call(context, i);
+    return accum;
+  };
+
+  // Return a random integer between min and max (inclusive).
+  _.random = function(min, max) {
+    if (max == null) {
+      max = min;
+      min = 0;
+    }
+    return min + Math.floor(Math.random() * (max - min + 1));
+  };
+
+  // List of HTML entities for escaping.
+  var entityMap = {
+    escape: {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '/': '&#x2F;'
+    }
+  };
+  entityMap.unescape = _.invert(entityMap.escape);
+
+  // Regexes containing the keys and values listed immediately above.
+  var entityRegexes = {
+    escape:   new RegExp('[' + _.keys(entityMap.escape).join('') + ']', 'g'),
+    unescape: new RegExp('(' + _.keys(entityMap.unescape).join('|') + ')', 'g')
+  };
+
+  // Functions for escaping and unescaping strings to/from HTML interpolation.
+  _.each(['escape', 'unescape'], function(method) {
+    _[method] = function(string) {
+      if (string == null) return '';
+      return ('' + string).replace(entityRegexes[method], function(match) {
+        return entityMap[method][match];
+      });
+    };
+  });
+
+  // If the value of the named property is a function then invoke it;
+  // otherwise, return it.
+  _.result = function(object, property) {
+    if (object == null) return null;
+    var value = object[property];
+    return _.isFunction(value) ? value.call(object) : value;
+  };
+
+  // Add your own custom functions to the Underscore object.
+  _.mixin = function(obj) {
+    each(_.functions(obj), function(name){
+      var func = _[name] = obj[name];
+      _.prototype[name] = function() {
+        var args = [this._wrapped];
+        push.apply(args, arguments);
+        return result.call(this, func.apply(_, args));
+      };
+    });
+  };
+
+  // Generate a unique integer id (unique within the entire client session).
+  // Useful for temporary DOM ids.
+  var idCounter = 0;
+  _.uniqueId = function(prefix) {
+    var id = ++idCounter + '';
+    return prefix ? prefix + id : id;
+  };
+
+  // By default, Underscore uses ERB-style template delimiters, change the
+  // following template settings to use alternative delimiters.
+  _.templateSettings = {
+    evaluate    : /<%([\s\S]+?)%>/g,
+    interpolate : /<%=([\s\S]+?)%>/g,
+    escape      : /<%-([\s\S]+?)%>/g
+  };
+
+  // When customizing `templateSettings`, if you don't want to define an
+  // interpolation, evaluation or escaping regex, we need one that is
+  // guaranteed not to match.
+  var noMatch = /(.)^/;
+
+  // Certain characters need to be escaped so that they can be put into a
+  // string literal.
+  var escapes = {
+    "'":      "'",
+    '\\':     '\\',
+    '\r':     'r',
+    '\n':     'n',
+    '\t':     't',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+  };
+
+  var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
+
+  // JavaScript micro-templating, similar to John Resig's implementation.
+  // Underscore templating handles arbitrary delimiters, preserves whitespace,
+  // and correctly escapes quotes within interpolated code.
+  _.template = function(text, data, settings) {
+    var render;
+    settings = _.defaults({}, settings, _.templateSettings);
+
+    // Combine delimiters into one regular expression via alternation.
+    var matcher = new RegExp([
+      (settings.escape || noMatch).source,
+      (settings.interpolate || noMatch).source,
+      (settings.evaluate || noMatch).source
+    ].join('|') + '|$', 'g');
+
+    // Compile the template source, escaping string literals appropriately.
+    var index = 0;
+    var source = "__p+='";
+    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+      source += text.slice(index, offset)
+        .replace(escaper, function(match) { return '\\' + escapes[match]; });
+
+      if (escape) {
+        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+      }
+      if (interpolate) {
+        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+      }
+      if (evaluate) {
+        source += "';\n" + evaluate + "\n__p+='";
+      }
+      index = offset + match.length;
+      return match;
+    });
+    source += "';\n";
+
+    // If a variable is not specified, place data values in local scope.
+    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+    source = "var __t,__p='',__j=Array.prototype.join," +
+      "print=function(){__p+=__j.call(arguments,'');};\n" +
+      source + "return __p;\n";
+
+    try {
+      render = new Function(settings.variable || 'obj', '_', source);
+    } catch (e) {
+      e.source = source;
+      throw e;
+    }
+
+    if (data) return render(data, _);
+    var template = function(data) {
+      return render.call(this, data, _);
+    };
+
+    // Provide the compiled function source as a convenience for precompilation.
+    template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
+
+    return template;
+  };
+
+  // Add a "chain" function, which will delegate to the wrapper.
+  _.chain = function(obj) {
+    return _(obj).chain();
+  };
+
+  // OOP
+  // ---------------
+  // If Underscore is called as a function, it returns a wrapped object that
+  // can be used OO-style. This wrapper holds altered versions of all the
+  // underscore functions. Wrapped objects may be chained.
+
+  // Helper function to continue chaining intermediate results.
+  var result = function(obj) {
+    return this._chain ? _(obj).chain() : obj;
+  };
+
+  // Add all of the Underscore functions to the wrapper object.
+  _.mixin(_);
+
+  // Add all mutator Array functions to the wrapper.
+  each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      var obj = this._wrapped;
+      method.apply(obj, arguments);
+      if ((name == 'shift' || name == 'splice') && obj.length === 0) delete obj[0];
+      return result.call(this, obj);
+    };
+  });
+
+  // Add all accessor Array functions to the wrapper.
+  each(['concat', 'join', 'slice'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      return result.call(this, method.apply(this._wrapped, arguments));
+    };
+  });
+
+  _.extend(_.prototype, {
+
+    // Start chaining a wrapped Underscore object.
+    chain: function() {
+      this._chain = true;
+      return this;
+    },
+
+    // Extracts the result from a wrapped and chained object.
+    value: function() {
+      return this._wrapped;
+    }
+
+  });
+
+}).call(this);
+
+if(!window.calendar_languages) {
+	window.calendar_languages = {};
+}
+
+window.calendar_languages['zh-CN'] = {
+	error_noview:     'Calendar: 没有发现视图 {0} ',
+	error_dateformat: 'Calendar: 日期格式不正确： {0}. 应当为 "now" 或者 "yyyy-mm-dd"',
+	error_loadurl:    'Calendar: 没有设置事件的 URL',
+	error_where:      'Calendar: Wrong navigation direction {0}. Can be only "next" or "prev" or "today"',
+	error_timedevide: 'Calendar: Time split parameter should divide 60 without decimals. Something like 10, 15, 30',
+
+	no_events_in_day: '今天没有事件。',
+
+	title_year:       '{0}',
+	title_month:      '{1} 年 {0}',
+	title_week:       '{1} 年 第 {0} 周 ',
+	title_day:        '{3} 年 {2} {1} 日， {0} ',
+
+	week:        '第{0}周',
+	all_day:     '整天',
+	time:        '时间',
+	events:      '发展',
+	before_time: '时间前结束带',
+	after_time:  '临时磁带结束后，',
+
+	m0:  '1 月',
+	m1:  '2 月',
+	m2:  '3 月',
+	m3:  '4 月',
+	m4:  '5 月',
+	m5:  '6 月',
+	m6:  '7 月',
+	m7:  '8 月',
+	m8:  '9 月',
+	m9:  '10 月',
+	m10: '11 月',
+	m11: '12 月',
+
+	ms0:  '1 月',
+	ms1:  '2 月',
+	ms2:  '3 月',
+	ms3:  '4 月',
+	ms4:  '5 月',
+	ms5:  '6 月',
+	ms6:  '7 月',
+	ms7:  '8 月',
+	ms8:  '9 月',
+	ms9:  '10 月',
+	ms10: '11 月',
+	ms11: '12 月',
+
+	d0:        '周日',
+	d1:        '周一',
+	d2:        '周二',
+	d3:        '周三',
+	d4:        '周四',
+	d5:        '周五',
+	d6:        '周六',
+
+	first_day: 2,
+
+	holidays:  {
+		'01-01': '元旦',
+		'08-03': '妇女节',
+		'01-05': '国际劳动节',
+		'04-05': '青年节',
+		'01-06': '儿童节',
+		'01-10': '国庆节'
+	}
+};
+
+/**
+ * Bootstrap based calendar full view.
+ *
+ * https://github.com/Serhioromano/bootstrap-calendar
+ *
+ * User: Sergey Romanov <serg4172@mail.ru>
+ */
+"use strict";
+
+Date.prototype.getWeek = function() {
+	var onejan = new Date(this.getFullYear(), 0, 1);
+	return Math.ceil((((this.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
+};
+Date.prototype.getMonthFormatted = function() {
+	var month = this.getMonth() + 1;
+	return month < 10 ? '0' + month : month;
+};
+Date.prototype.getDateFormatted = function() {
+	var date = this.getDate();
+	return date < 10 ? '0' + date : date;
+};
+if(!String.prototype.format) {
+	String.prototype.format = function() {
+		var args = arguments;
+		return this.replace(/{(\d+)}/g, function(match, number) {
+			return typeof args[number] != 'undefined' ? args[number] : match;
+		});
+	};
+}
+if(!String.prototype.formatNum) {
+	String.prototype.formatNum = function(decimal) {
+		var r = "" + this;
+		while(r.length < decimal)
+			r = "0" + r;
+		return r;
+	};
+}
+
+(function($) {
+
+	var defaults = {
+		// Width of the calendar
+		width:              '100%',
+		// Initial view (can be 'month', 'week', 'day')
+		view:               'month',
+		// Initial date. No matter month, week or day this will be a starting point. Can be 'now' or a date in format 'yyyy-mm-dd'
+		day:                'now',
+		// Day Start time and end time with time intervals. Time split 10, 15 or 30.
+		time_start:         '06:00',
+		time_end:           '22:00',
+		time_split:         '30',
+		// Source of events data. It can be one of the following:
+		// - URL to return JSON list of events in special format.
+		//   {success:1, result: [....]} or for error {success:0, error:'Something terrible happened'}
+		//   events: [...] as described in events property description
+		//   The start and end variables will be sent to this url
+		// - A function that received the start and end date, and that
+		//   returns an array of events (as described in events property description)
+		// - An array containing the events
+		events_source:      '',
+		// Path to templates should end with slash /. It can be as relative
+		// /component/bootstrap-calendar/tmpls/
+		// or absolute
+		// http://localhost/component/bootstrap-calendar/tmpls/
+		tmpl_path:          'tmpls/',
+		tmpl_cache:         true,
+		classes:            {
+			months: {
+				inmonth:  'cal-day-inmonth',
+				outmonth: 'cal-day-outmonth',
+				saturday: 'cal-day-weekend',
+				sunday:   'cal-day-weekend',
+				holidays: 'cal-day-holiday',
+				today:    'cal-day-today'
+			},
+			week:   {
+				workday:  'cal-day-workday',
+				saturday: 'cal-day-weekend',
+				sunday:   'cal-day-weekend',
+				holidays: 'cal-day-holiday',
+				today:    'cal-day-today'
+			}
+		},
+		// ID of the element of modal window. If set, events URLs will be opened in modal windows.
+		modal:              null,
+		//	modal handling setting, one of "iframe", "ajax" or "template"
+		modal_type:         "iframe",
+		//	function to set modal title, will be passed the event as a parameter
+		modal_title:        null,
+		views:              {
+			year:  {
+				slide_events: 1,
+				enable:       1
+			},
+			month: {
+				slide_events: 1,
+				enable:       1
+			},
+			week:  {
+				enable: 1
+			},
+			day:   {
+				enable: 1
+			}
+		},
+		merge_holidays:     false,
+		// ------------------------------------------------------------
+		// CALLBACKS. Events triggered by calendar class. You can use
+		// those to affect you UI
+		// ------------------------------------------------------------
+		onAfterEventsLoad:  function(events) {
+			// Inside this function 'this' is the calendar instance
+		},
+		onBeforeEventsLoad: function(next) {
+			// Inside this function 'this' is the calendar instance
+			next();
+		},
+		onAfterViewLoad:    function(view) {
+			// Inside this function 'this' is the calendar instance
+		},
+		onAfterModalShown:  function(events) {
+			// Inside this function 'this' is the calendar instance
+		},
+		onAfterModalHidden: function(events) {
+			// Inside this function 'this' is the calendar instance
+		},
+		// -------------------------------------------------------------
+		// INTERNAL USE ONLY. DO NOT ASSIGN IT WILL BE OVERRIDDEN ANYWAY
+		// -------------------------------------------------------------
+		events:             [],
+		templates:          {
+			year:  '',
+			month: '',
+			week:  '',
+			day:   ''
+		},
+		stop_cycling:       false
+	};
+
+	var defaults_extended = {
+		first_day: 2,
+		holidays:  {
+			// January 1
+			'01-01':  "New Year's Day",
+			// Third (+3*) Monday (1) in January (01)
+			'01+3*1': "Birthday of Dr. Martin Luther King, Jr.",
+			// Third (+3*) Monday (1) in February (02)
+			'02+3*1': "Washington's Birthday",
+			// Last (-1*) Monday (1) in May (05)
+			'05-1*1': "Memorial Day",
+			// July 4
+			'04-07':  "Independence Day",
+			// First (+1*) Monday (1) in September (09)
+			'09+1*1': "Labor Day",
+			// Second (+2*) Monday (1) in October (10)
+			'10+2*1': "Columbus Day",
+			// November 11
+			'11-11':  "Veterans Day",
+			// Fourth (+4*) Thursday (4) in November (11)
+			'11+4*4': "Thanksgiving Day",
+			// December 25
+			'25-12':  "Christmas"
+		}
+	};
+
+	var strings = {
+		error_noview:     'Calendar: View {0} not found',
+		error_dateformat: 'Calendar: Wrong date format {0}. Should be either "now" or "yyyy-mm-dd"',
+		error_loadurl:    'Calendar: Event URL is not set',
+		error_where:      'Calendar: Wrong navigation direction {0}. Can be only "next" or "prev" or "today"',
+		error_timedevide: 'Calendar: Time split parameter should divide 60 without decimals. Something like 10, 15, 30',
+
+		no_events_in_day: 'No events in this day.',
+
+		title_year:  '{0}',
+		title_month: '{0} {1}',
+		title_week:  'week {0} of {1}',
+		title_day:   '{0} {1} {2}, {3}',
+
+		week:        'Week {0}',
+		all_day:     'All day',
+		time:        'Time',
+		events:      'Events',
+		before_time: 'Ends before timeline',
+		after_time:  'Starts after timeline',
+
+
+		m0:  'January',
+		m1:  'February',
+		m2:  'March',
+		m3:  'April',
+		m4:  'May',
+		m5:  'June',
+		m6:  'July',
+		m7:  'August',
+		m8:  'September',
+		m9:  'October',
+		m10: 'November',
+		m11: 'December',
+
+		ms0:  'Jan',
+		ms1:  'Feb',
+		ms2:  'Mar',
+		ms3:  'Apr',
+		ms4:  'May',
+		ms5:  'Jun',
+		ms6:  'Jul',
+		ms7:  'Aug',
+		ms8:  'Sep',
+		ms9:  'Oct',
+		ms10: 'Nov',
+		ms11: 'Dec',
+
+		d0: 'Sunday',
+		d1: 'Monday',
+		d2: 'Tuesday',
+		d3: 'Wednesday',
+		d4: 'Thursday',
+		d5: 'Friday',
+		d6: 'Saturday'
+	};
+
+	var browser_timezone = '';
+	try {
+		if($.type(window.jstz) == 'object' && $.type(jstz.determine) == 'function') {
+			browser_timezone = jstz.determine().name();
+			if($.type(browser_timezone) !== 'string') {
+				browser_timezone = '';
+			}
+		}
+	}
+	catch(e) {
+	}
+
+	function buildEventsUrl(events_url, data) {
+		var separator, key, url;
+		url = events_url;
+		separator = (events_url.indexOf('?') < 0) ? '?' : '&';
+		for(key in data) {
+			url += separator + key + '=' + encodeURIComponent(data[key]);
+			separator = '&';
+		}
+		return url;
+	}
+
+	function getExtentedOption(cal, option_name) {
+		var fromOptions = (cal.options[option_name] != null) ? cal.options[option_name] : null;
+		var fromLanguage = (cal.locale[option_name] != null) ? cal.locale[option_name] : null;
+		if((option_name == 'holidays') && cal.options.merge_holidays) {
+			var holidays = {};
+			$.extend(true, holidays, fromLanguage ? fromLanguage : defaults_extended.holidays);
+			if(fromOptions) {
+				$.extend(true, holidays, fromOptions);
+			}
+			return holidays;
+		}
+		else {
+			if(fromOptions != null) {
+				return fromOptions;
+			}
+			if(fromLanguage != null) {
+				return fromLanguage;
+			}
+			return defaults_extended[option_name];
+		}
+	}
+
+	function getHolidays(cal, year) {
+		var hash = [];
+		var holidays_def = getExtentedOption(cal, 'holidays');
+		for(var k in holidays_def) {
+			hash.push(k + ':' + holidays_def[k]);
+		}
+		hash.push(year);
+		hash = hash.join('|');
+		if(hash in getHolidays.cache) {
+			return getHolidays.cache[hash];
+		}
+		var holidays = [];
+		$.each(holidays_def, function(key, name) {
+			var firstDay = null, lastDay = null, failed = false;
+			$.each(key.split('>'), function(i, chunk) {
+				var m, date = null;
+				if(m = /^(\d\d)-(\d\d)$/.exec(chunk)) {
+					date = new Date(year, parseInt(m[2], 10) - 1, parseInt(m[1], 10));
+				}
+				else if(m = /^(\d\d)-(\d\d)-(\d\d\d\d)$/.exec(chunk)) {
+					if(parseInt(m[3], 10) == year) {
+						date = new Date(year, parseInt(m[2], 10) - 1, parseInt(m[1], 10));
+					}
+				}
+				else if(m = /^easter(([+\-])(\d+))?$/.exec(chunk)) {
+					date = getEasterDate(year, m[1] ? parseInt(m[1], 10) : 0);
+				}
+				else if(m = /^(\d\d)([+\-])([1-5])\*([0-6])$/.exec(chunk)) {
+					var month = parseInt(m[1], 10) - 1;
+					var direction = m[2];
+					var offset = parseInt(m[3]);
+					var weekday = parseInt(m[4]);
+					switch(direction) {
+						case '+':
+							var d = new Date(year, month, 1 - 7);
+							while(d.getDay() != weekday) {
+								d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+							}
+							date = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7 * offset);
+							break;
+						case '-':
+							var d = new Date(year, month + 1, 0 + 7);
+							while(d.getDay() != weekday) {
+								d = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1);
+							}
+							date = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 7 * offset);
+							break;
+					}
+				}
+				if(!date) {
+					warn('Unknown holiday: ' + key);
+					failed = true;
+					return false;
+				}
+				switch(i) {
+					case 0:
+						firstDay = date;
+						break;
+					case 1:
+						if(date.getTime() <= firstDay.getTime()) {
+							warn('Unknown holiday: ' + key);
+							failed = true;
+							return false;
+						}
+						lastDay = date;
+						break;
+					default:
+						warn('Unknown holiday: ' + key);
+						failed = true;
+						return false;
+				}
+			});
+			if(!failed) {
+				var days = [];
+				if(lastDay) {
+					for(var date = new Date(firstDay.getTime()); date.getTime() <= lastDay.getTime(); date.setDate(date.getDate() + 1)) {
+						days.push(new Date(date.getTime()));
+					}
+				}
+				else {
+					days.push(firstDay);
+				}
+				holidays.push({name: name, days: days});
+			}
+		});
+		getHolidays.cache[hash] = holidays;
+		return getHolidays.cache[hash];
+	}
+
+	getHolidays.cache = {};
+
+	function warn(message) {
+		if($.type(window.console) == 'object' && $.type(window.console.warn) == 'function') {
+			window.console.warn('[Bootstrap-Calendar] ' + message);
+		}
+	}
+
+	function Calendar(params, context) {
+		this.options = $.extend(true, {position: {start: new Date(), end: new Date()}}, defaults, params);
+		this.setLanguage(this.options.language);
+		this.context = context;
+
+		context.css('width', this.options.width).addClass('cal-context');
+
+		this.view();
+		return this;
+	}
+
+	Calendar.prototype.setOptions = function(object) {
+		$.extend(this.options, object);
+		if('language' in object) {
+			this.setLanguage(object.language);
+		}
+		if('modal' in object) {
+			this._update_modal();
+		}
+	}
+
+	Calendar.prototype.setLanguage = function(lang) {
+		if(window.calendar_languages && (lang in window.calendar_languages)) {
+			this.locale = $.extend(true, {}, strings, calendar_languages[lang]);
+			this.options.language = lang;
+		} else {
+			this.locale = strings;
+			delete this.options.language;
+		}
+	}
+
+	Calendar.prototype._render = function() {
+		this.context.html('');
+		this._loadTemplate(this.options.view);
+		this.stop_cycling = false;
+
+		var data = {};
+		data.cal = this;
+		data.day = 1;
+
+		// Getting list of days in a week in correct order. Works for month and week views
+		if(getExtentedOption(this, 'first_day') == 1) {
+			data.months = [this.locale.d1, this.locale.d2, this.locale.d3, this.locale.d4, this.locale.d5, this.locale.d6, this.locale.d0]
+		} else {
+			data.months = [this.locale.d0, this.locale.d1, this.locale.d2, this.locale.d3, this.locale.d4, this.locale.d5, this.locale.d6]
+		}
+
+		// Get all events between start and end
+		var start = parseInt(this.options.position.start.getTime());
+		var end = parseInt(this.options.position.end.getTime());
+
+		data.events = this.getEventsBetween(start, end);
+
+		switch(this.options.view) {
+			case 'month':
+				break;
+			case 'week':
+				this._calculate_hour_minutes(data);
+				break;
+			case 'day':
+				this._calculate_hour_minutes(data);
+				break;
+		}
+
+		data.start = new Date(this.options.position.start.getTime());
+		data.lang = this.locale;
+
+		this.context.append(this.options.templates[this.options.view](data));
+		this._update();
+	};
+
+	Calendar.prototype._calculate_hour_minutes = function(data) {
+		var $self = this;
+		var time_split = parseInt(this.options.time_split);
+		var time_split_count = 60 / time_split;
+		var time_split_hour = Math.min(time_split_count, 1);
+
+		if(((time_split_count >= 1) && (time_split_count % 1 != 0)) || ((time_split_count < 1) && (1440 / time_split % 1 != 0))) {
+			$.error(this.locale.error_timedevide);
+		}
+
+		var time_start = this.options.time_start.split(":");
+		var time_end = this.options.time_end.split(":");
+
+		data.hours = (parseInt(time_end[0]) - parseInt(time_start[0])) * time_split_hour;
+		var lines = data.hours * time_split_count - parseInt(time_start[1]) / time_split;
+		var ms_per_line = (60000 * time_split);
+
+		var start = new Date(this.options.position.start.getTime());
+		start.setHours(time_start[0]);
+		start.setMinutes(time_start[1]);
+		var end = new Date(this.options.position.start.getTime());
+		end.setHours(time_end[0]);
+		end.setMinutes(time_end[1]);
+
+		data.all_day = [];
+		data.by_hour = [];
+		data.after_time = [];
+		data.before_time = [];
+		$.each(data.events, function(k, e) {
+			var s = new Date(parseInt(e.start));
+			var f = new Date(parseInt(e.end));
+
+			e.start_hour = s.getHours().toString().formatNum(2) + ':' + s.getMinutes().toString().formatNum(2);
+			e.end_hour = f.getHours().toString().formatNum(2) + ':' + f.getMinutes().toString().formatNum(2);
+
+			if(e.start < start.getTime()) {
+				warn(1);
+				e.start_hour = s.getDate() + ' ' + $self.locale['ms' + s.getMonth()] + ' ' + e.start_hour;
+			}
+
+			if(e.end > end.getTime()) {
+				warn(1);
+				e.end_hour = f.getDate() + ' ' + $self.locale['ms' + f.getMonth()] + ' ' + e.end_hour;
+			}
+
+			if(e.start < start.getTime() && e.end > end.getTime()) {
+				data.all_day.push(e);
+				return;
+			}
+
+			if(e.end < start.getTime()) {
+				data.before_time.push(e);
+				return;
+			}
+
+			if(e.start > end.getTime()) {
+				data.after_time.push(e);
+				return;
+			}
+
+			var event_start = start.getTime() - e.start;
+
+			if(event_start >= 0) {
+				e.top = 0;
+			} else {
+				e.top = Math.abs(event_start) / ms_per_line;
+			}
+
+			var lines_left = Math.abs(lines - e.top);
+			var lines_in_event = (e.end - e.start) / ms_per_line;
+			if(event_start >= 0) {
+				lines_in_event = (e.end - start.getTime()) / ms_per_line;
+			}
+
+
+			e.lines = lines_in_event;
+			if(lines_in_event > lines_left) {
+				e.lines = lines_left;
+			}
+
+			data.by_hour.push(e);
+		});
+
+		//var d = new Date('2013-03-14 13:20:00');
+		//warn(d.getTime());
+	};
+
+	Calendar.prototype._hour_min = function(hour) {
+		var time_start = this.options.time_start.split(":");
+		var time_split = parseInt(this.options.time_split);
+		var in_hour = 60 / time_split;
+		return (hour == 0) ? (in_hour - (parseInt(time_start[1]) / time_split)) : in_hour;
+	};
+
+	Calendar.prototype._hour = function(hour, part) {
+		var time_start = this.options.time_start.split(":");
+		var time_split = parseInt(this.options.time_split);
+		var h = "" + (parseInt(time_start[0]) + hour * Math.max(time_split / 60, 1));
+		var m = "" + (time_split * part + (hour == 0) ? parseInt(time_start[1]) : 0);
+
+		return h.formatNum(2) + ":" + m.formatNum(2);
+	};
+
+	Calendar.prototype._week = function(event) {
+		this._loadTemplate('week-days');
+
+		var t = {};
+		var start = parseInt(this.options.position.start.getTime());
+		var end = parseInt(this.options.position.end.getTime());
+		var events = [];
+		var self = this;
+		var first_day = getExtentedOption(this, 'first_day');
+
+		$.each(this.getEventsBetween(start, end), function(k, event) {
+			event.start_day = new Date(parseInt(event.start)).getDay();
+			if(first_day == 1) {
+				event.start_day = (event.start_day + 6) % 7;
+			}
+			if((event.end - event.start) <= 86400000) {
+				event.days = 1;
+			} else {
+				event.days = ((event.end - event.start) / 86400000);
+			}
+
+			if(event.start < start) {
+
+				event.days = event.days - ((start - event.start) / 86400000);
+				event.start_day = 0;
+			}
+
+			event.days = Math.ceil(event.days);
+
+			if(event.start_day + event.days > 7) {
+				event.days = 7 - (event.start_day);
+			}
+
+			events.push(event);
+		});
+		t.events = events;
+		t.cal = this;
+		return self.options.templates['week-days'](t);
+	}
+
+	Calendar.prototype._month = function(month) {
+		this._loadTemplate('year-month');
+
+		var t = {cal: this};
+		var newmonth = month + 1;
+		t.data_day = this.options.position.start.getFullYear() + '-' + (newmonth < 10 ? '0' + newmonth : newmonth) + '-' + '01';
+		t.month_name = this.locale['m' + month];
+
+		var curdate = new Date(this.options.position.start.getFullYear(), month, 1, 0, 0, 0);
+		t.start = parseInt(curdate.getTime());
+		t.end = parseInt(new Date(this.options.position.start.getFullYear(), month + 1, 1, 0, 0, 0).getTime());
+		t.events = this.getEventsBetween(t.start, t.end);
+		return this.options.templates['year-month'](t);
+	}
+
+	Calendar.prototype._day = function(week, day) {
+		this._loadTemplate('month-day');
+
+		var t = {tooltip: '', cal: this};
+		var cls = this.options.classes.months.outmonth;
+
+		var firstday = this.options.position.start.getDay();
+		if(getExtentedOption(this, 'first_day') == 2) {
+			firstday++;
+		} else {
+			firstday = (firstday == 0 ? 7 : firstday);
+		}
+
+		day = (day - firstday) + 1;
+		var curdate = new Date(this.options.position.start.getFullYear(), this.options.position.start.getMonth(), day, 0, 0, 0);
+
+		// if day of the current month
+		if(day > 0) {
+			cls = this.options.classes.months.inmonth;
+		}
+		// stop cycling table rows;
+		var daysinmonth = (new Date(this.options.position.end.getTime() - 1)).getDate();
+		if((day + 1) > daysinmonth) {
+			this.stop_cycling = true;
+		}
+		// if day of the next month
+		if(day > daysinmonth) {
+			day = day - daysinmonth;
+			cls = this.options.classes.months.outmonth;
+		}
+
+		cls = $.trim(cls + " " + this._getDayClass("months", curdate));
+
+		if(day <= 0) {
+			var daysinprevmonth = (new Date(this.options.position.start.getFullYear(), this.options.position.start.getMonth(), 0)).getDate();
+			day = daysinprevmonth - Math.abs(day);
+			cls += ' cal-month-first-row';
+		}
+
+		var holiday = this._getHoliday(curdate);
+		if(holiday !== false) {
+			t.tooltip = holiday;
+		}
+
+		t.data_day = curdate.getFullYear() + '-' + curdate.getMonthFormatted() + '-' + (day < 10 ? '0' + day : day);
+		t.cls = cls;
+		t.day = day;
+
+		t.start = parseInt(curdate.getTime());
+		t.end = parseInt(t.start + 86400000);
+		t.events = this.getEventsBetween(t.start, t.end);
+		return this.options.templates['month-day'](t);
+	}
+
+	Calendar.prototype._getHoliday = function(date) {
+		var result = false;
+		$.each(getHolidays(this, date.getFullYear()), function() {
+			var found = false;
+			$.each(this.days, function() {
+				if(this.toDateString() == date.toDateString()) {
+					found = true;
+					return false;
+				}
+			});
+			if(found) {
+				result = this.name;
+				return false;
+			}
+		});
+		return result;
+	};
+
+	Calendar.prototype._getHolidayName = function(date) {
+		var holiday = this._getHoliday(date);
+		return (holiday === false) ? "" : holiday;
+	};
+
+	Calendar.prototype._getDayClass = function(class_group, date) {
+		var self = this;
+		var addClass = function(which, to) {
+			var cls;
+			cls = (self.options.classes && (class_group in self.options.classes) && (which in self.options.classes[class_group])) ? self.options.classes[class_group][which] : "";
+			if((typeof(cls) == "string") && cls.length) {
+				to.push(cls);
+			}
+		};
+		var classes = [];
+		if(date.toDateString() == (new Date()).toDateString()) {
+			addClass("today", classes);
+		}
+		var holiday = this._getHoliday(date);
+		if(holiday !== false) {
+			addClass("holidays", classes);
+		}
+		switch(date.getDay()) {
+			case 0:
+				addClass("sunday", classes);
+				break;
+			case 6:
+				addClass("saturday", classes);
+				break;
+		}
+
+		addClass(date.toDateString(), classes);
+
+		return classes.join(" ");
+	};
+
+	Calendar.prototype.view = function(view) {
+		if(view) {
+			if(!this.options.views[view].enable) {
+				return;
+			}
+			this.options.view = view;
+		}
+
+
+		this._init_position();
+		this._loadEvents();
+		this._render();
+
+		this.options.onAfterViewLoad.call(this, this.options.view);
+	};
+
+	Calendar.prototype.navigate = function(where, next) {
+		var to = $.extend({}, this.options.position);
+		if(where == 'next') {
+			switch(this.options.view) {
+				case 'year':
+					to.start.setFullYear(this.options.position.start.getFullYear() + 1);
+					break;
+				case 'month':
+					to.start.setMonth(this.options.position.start.getMonth() + 1);
+					break;
+				case 'week':
+					to.start.setDate(this.options.position.start.getDate() + 7);
+					break;
+				case 'day':
+					to.start.setDate(this.options.position.start.getDate() + 1);
+					break;
+			}
+		} else if(where == 'prev') {
+			switch(this.options.view) {
+				case 'year':
+					to.start.setFullYear(this.options.position.start.getFullYear() - 1);
+					break;
+				case 'month':
+					to.start.setMonth(this.options.position.start.getMonth() - 1);
+					break;
+				case 'week':
+					to.start.setDate(this.options.position.start.getDate() - 7);
+					break;
+				case 'day':
+					to.start.setDate(this.options.position.start.getDate() - 1);
+					break;
+			}
+		} else if(where == 'today') {
+			to.start.setTime(new Date().getTime());
+		}
+		else {
+			$.error(this.locale.error_where.format(where))
+		}
+		this.options.day = to.start.getFullYear() + '-' + to.start.getMonthFormatted() + '-' + to.start.getDateFormatted();
+		this.view();
+		if(_.isFunction(next)) {
+			next();
+		}
+	};
+
+	Calendar.prototype._init_position = function() {
+		var year, month, day;
+
+		if(this.options.day == 'now') {
+			var date = new Date();
+			year = date.getFullYear();
+			month = date.getMonth();
+			day = date.getDate();
+		} else if(this.options.day.match(/^\d{4}-\d{2}-\d{2}$/g)) {
+			var list = this.options.day.split('-');
+			year = parseInt(list[0], 10);
+			month = parseInt(list[1], 10) - 1;
+			day = parseInt(list[2], 10);
+		}
+		else {
+			$.error(this.locale.error_dateformat.format(this.options.day));
+		}
+
+		switch(this.options.view) {
+			case 'year':
+				this.options.position.start.setTime(new Date(year, 0, 1).getTime());
+				this.options.position.end.setTime(new Date(year + 1, 0, 1).getTime());
+				break;
+			case 'month':
+				this.options.position.start.setTime(new Date(year, month, 1).getTime());
+				this.options.position.end.setTime(new Date(year, month + 1, 1).getTime());
+				break;
+			case 'day':
+				this.options.position.start.setTime(new Date(year, month, day).getTime());
+				this.options.position.end.setTime(new Date(year, month, day + 1).getTime());
+				break;
+			case 'week':
+				var curr = new Date(year, month, day);
+				var first;
+				if(getExtentedOption(this, 'first_day') == 1) {
+					first = curr.getDate() - ((curr.getDay() + 6) % 7);
+				}
+				else {
+					first = curr.getDate() - curr.getDay();
+				}
+				this.options.position.start.setTime(new Date(year, month, first).getTime());
+				this.options.position.end.setTime(new Date(year, month, first + 7).getTime());
+				break;
+			default:
+				$.error(this.locale.error_noview.format(this.options.view))
+		}
+		return this;
+	};
+
+	Calendar.prototype.getTitle = function() {
+		var p = this.options.position.start;
+		switch(this.options.view) {
+			case 'year':
+				return this.locale.title_year.format(p.getFullYear());
+				break;
+			case 'month':
+				return this.locale.title_month.format(this.locale['m' + p.getMonth()], p.getFullYear());
+				break;
+			case 'week':
+				return this.locale.title_week.format(p.getWeek(), p.getFullYear());
+				break;
+			case 'day':
+				return this.locale.title_day.format(this.locale['d' + p.getDay()], p.getDate(), this.locale['m' + p.getMonth()], p.getFullYear());
+				break;
+		}
+		return;
+	};
+
+	Calendar.prototype.isToday = function() {
+		var now = new Date().getTime();
+
+		return ((now > this.options.position.start) && (now < this.options.position.end));
+	}
+
+	Calendar.prototype.getStartDate = function() {
+		return this.options.position.start;
+	}
+
+	Calendar.prototype.getEndDate = function() {
+		return this.options.position.end;
+	}
+
+	Calendar.prototype._loadEvents = function() {
+		var self = this;
+		var source = null;
+		if('events_source' in this.options && this.options.events_source !== '') {
+			source = this.options.events_source;
+		}
+		else if('events_url' in this.options) {
+			source = this.options.events_url;
+			warn('The events_url option is DEPRECATED and it will be REMOVED in near future. Please use events_source instead.');
+		}
+		var loader;
+		switch($.type(source)) {
+			case 'function':
+				loader = function() {
+					return source(self.options.position.start, self.options.position.end, browser_timezone);
+				};
+				break;
+			case 'array':
+				loader = function() {
+					return [].concat(source);
+				};
+				break;
+			case 'string':
+				if(source.length) {
+					loader = function() {
+						var events = [];
+						var params = {from: self.options.position.start.getTime(), to: self.options.position.end.getTime()};
+						if(browser_timezone.length) {
+							params.browser_timezone = browser_timezone;
+						}
+						$.ajax({
+							url:      buildEventsUrl(source, params),
+							dataType: 'json',
+							type:     'GET',
+							async:    false
+						}).done(function(json) {
+							if(!json.success) {
+								$.error(json.error);
+							}
+							if(json.result) {
+								events = json.result;
+							}
+						});
+						return events;
+					};
+				}
+				break;
+		}
+		if(!loader) {
+			$.error(this.locale.error_loadurl);
+		}
+		this.options.onBeforeEventsLoad.call(this, function() {
+			self.options.events = loader();
+			self.options.events.sort(function(a, b) {
+				var delta;
+				delta = a.start - b.start;
+				if(delta == 0) {
+					delta = a.end - b.end;
+				}
+				return delta;
+			});
+			self.options.onAfterEventsLoad.call(self, self.options.events);
+		});
+	};
+
+	Calendar.prototype._templatePath = function(name) {
+		if(typeof this.options.tmpl_path == 'function') {
+			return this.options.tmpl_path(name)
+		}
+		else {
+			return this.options.tmpl_path + name + '.html';
+		}
+	};
+
+	Calendar.prototype._loadTemplate = function(name) {
+		if(this.options.templates[name]) {
+			return;
+		}
+		var self = this;
+		$.ajax({
+			url:      self._templatePath(name),
+			dataType: 'html',
+			type:     'GET',
+			async:    false,
+			cache:    this.options.tmpl_cache
+		}).done(function(html) {
+			self.options.templates[name] = _.template(html);
+		});
+	};
+
+	Calendar.prototype._update = function() {
+		var self = this;
+
+		$('*[data-toggle="tooltip"]').tooltip({container: 'body'});
+
+		$('*[data-cal-date]').click(function() {
+			var view = $(this).data('cal-view');
+			self.options.day = $(this).data('cal-date');
+			self.view(view);
+		});
+		$('.cal-cell').dblclick(function() {
+			var view = $('[data-cal-date]', this).data('cal-view');
+			self.options.day = $('[data-cal-date]', this).data('cal-date');
+			self.view(view);
+		});
+
+		this['_update_' + this.options.view]();
+
+		this._update_modal();
+
+	};
+
+	Calendar.prototype._update_modal = function() {
+		var self = this;
+
+		$('a[data-event-id]', this.context).unbind('click');
+
+		if(!self.options.modal) {
+			return;
+		}
+
+		var modal = $(self.options.modal);
+
+		if(!modal.length) {
+			return;
+		}
+
+		var ifrm = null;
+		if(self.options.modal_type == "iframe") {
+			ifrm = $(document.createElement("iframe"))
+				.attr({
+					width:       "100%",
+					frameborder: "0"
+				});
+		}
+
+
+		$('a[data-event-id]', this.context).on('click', function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			var url = $(this).attr('href');
+			var id = $(this).data("event-id");
+			var event = _.find(self.options.events, function(event) {
+				return event.id == id
+			});
+
+			if(self.options.modal_type == "iframe") {
+				ifrm.attr('src', url);
+				$('.modal-body', modal).html(ifrm);
+			}
+
+			if(!modal.data('handled.bootstrap-calendar') || (modal.data('handled.bootstrap-calendar') && modal.data('handled.event-id') != event.id)) {
+				modal
+					.on('show.bs.modal', function() {
+						var modal_body = $(this).find('.modal-body');
+						switch(self.options.modal_type) {
+							case "iframe" :
+								var height = modal_body.height() - parseInt(modal_body.css('padding-top'), 10) - parseInt(modal_body.css('padding-bottom'), 10);
+								$(this).find('iframe').height(Math.max(height, 50));
+								break;
+
+							case "ajax":
+								$.ajax({url: url, dataType: "html", async: false, success: function(data) {
+									modal_body.html(data);
+								}});
+								break;
+
+							case "template":
+								self._loadTemplate("modal");
+								//	also serve calendar instance to underscore template to be able to access current language strings
+								modal_body.html(self.options.templates["modal"]({"event": event, "calendar": self}))
+								break;
+						}
+
+						//	set the title of the bootstrap modal
+						if(_.isFunction(self.options.modal_title)) {
+							modal.find("h3").html(self.options.modal_title(event));
+						}
+					})
+					.on('shown.bs.modal', function() {
+						self.options.onAfterModalShown.call(self, self.options.events);
+					})
+					.on('hidden.bs.modal', function() {
+						self.options.onAfterModalHidden.call(self, self.options.events);
+					})
+					.data('handled.bootstrap-calendar', true).data('handled.event-id', event.id);
+			}
+			modal.modal('show');
+		});
+	};
+
+	Calendar.prototype._update_day = function() {
+		$('#cal-day-panel').height($('#cal-day-panel-hour').height());
+	};
+
+	Calendar.prototype._update_week = function() {
+	};
+
+	Calendar.prototype._update_year = function() {
+		this._update_month_year();
+	};
+
+	Calendar.prototype._update_month = function() {
+		this._update_month_year();
+
+		var self = this;
+
+		var week = $(document.createElement('div')).attr('id', 'cal-week-box');
+		var start = this.options.position.start.getFullYear() + '-' + this.options.position.start.getMonthFormatted() + '-';
+		$('.cal-month-box .cal-row-fluid')
+			.on('mouseenter', function() {
+				var p = new Date(self.options.position.start);
+				var child = $('.cal-cell1:first-child .cal-month-day', this);
+				var day = (child.hasClass('cal-month-first-row') ? 1 : $('[data-cal-date]', child).text());
+				p.setDate(parseInt(day));
+				day = (day < 10 ? '0' + day : day);
+				week.html(self.locale.week.format(p.getWeek()));
+				week.attr('data-cal-week', start + day).show().appendTo(child);
+			})
+			.on('mouseleave', function() {
+				week.hide();
+			})
+		;
+
+		week.click(function() {
+			self.options.day = $(this).data('cal-week');
+			self.view('week');
+		});
+
+		$('a.event').mouseenter(function() {
+			$('a[data-event-id="' + $(this).data('event-id') + '"]').closest('.cal-cell1').addClass('day-highlight dh-' + $(this).data('event-class'));
+		});
+		$('a.event').mouseleave(function() {
+			$('div.cal-cell1').removeClass('day-highlight dh-' + $(this).data('event-class'));
+		});
+	};
+
+	Calendar.prototype._update_month_year = function() {
+		if(!this.options.views[this.options.view].slide_events) {
+			return;
+		}
+		var self = this;
+		var activecell = 0;
+		var downbox = $(document.createElement('div')).attr('id', 'cal-day-tick').html('<i class="icon-chevron-down glyphicon glyphicon-chevron-down"></i>');
+
+		$('.cal-month-day, .cal-year-box .span3')
+			.on('mouseenter', function() {
+				if($('.events-list', this).length == 0) return;
+				if($(this).children('[data-cal-date]').text() == self.activecell) return;
+				downbox.show().appendTo(this);
+			})
+			.on('mouseleave', function() {
+				downbox.hide();
+			})
+			.on('click', function(event) {
+				if($('.events-list', this).length == 0) return;
+				if($(this).children('[data-cal-date]').text() == self.activecell) return;
+				showEventsList(event, downbox, slider, self);
+			})
+		;
+
+		var slider = $(document.createElement('div')).attr('id', 'cal-slide-box');
+		slider.hide().click(function(event) {
+			event.stopPropagation();
+		});
+
+		this._loadTemplate('events-list');
+
+		downbox.click(function(event) {
+			showEventsList(event, $(this), slider, self);
+		});
+	};
+
+	Calendar.prototype.getEventsBetween = function(start, end) {
+		var events = [];
+		$.each(this.options.events, function() {
+			if(this.start == null) {
+				return true;
+			}
+			var event_end = this.end || this.start;
+			if((parseInt(this.start) < end) && (parseInt(event_end) >= start)) {
+				events.push(this);
+			}
+		});
+		return events;
+	};
+
+	function showEventsList(event, that, slider, self) {
+
+		event.stopPropagation();
+
+		var that = $(that);
+		var cell = that.closest('.cal-cell');
+		var row = cell.closest('.cal-before-eventlist');
+		var tick_position = cell.data('cal-row');
+
+		that.fadeOut('fast');
+
+		slider.slideUp('fast', function() {
+			var event_list = $('.events-list', cell);
+			slider.html(self.options.templates['events-list']({
+				cal:    self,
+				events: self.getEventsBetween(parseInt(event_list.data('cal-start')), parseInt(event_list.data('cal-end')))
+			}));
+			row.after(slider);
+			self.activecell = $('[data-cal-date]', cell).text();
+			$('#cal-slide-tick').addClass('tick' + tick_position).show();
+			slider.slideDown('fast', function() {
+				$('body').one('click', function() {
+					slider.slideUp('fast');
+					self.activecell = 0;
+				});
+			});
+		});
+
+		$('a.event-item').mouseenter(function() {
+			$('a[data-event-id="' + $(this).data('event-id') + '"]').closest('.cal-cell1').addClass('day-highlight dh-' + $(this).data('event-class'));
+		});
+		$('a.event-item').mouseleave(function() {
+			$('div.cal-cell1').removeClass('day-highlight dh-' + $(this).data('event-class'));
+		});
+
+		// Wait 400ms before updating the modal (400ms is the time for the slider to fade out and slide up)
+		setTimeout(function() {
+			self._update_modal();
+		}, 400);
+	}
+
+	function getEasterDate(year, offsetDays) {
+		var a = year % 19;
+		var b = Math.floor(year / 100);
+		var c = year % 100;
+		var d = Math.floor(b / 4);
+		var e = b % 4;
+		var f = Math.floor((b + 8) / 25);
+		var g = Math.floor((b - f + 1) / 3);
+		var h = (19 * a + b - d - g + 15) % 30;
+		var i = Math.floor(c / 4);
+		var k = c % 4;
+		var l = (32 + 2 * e + 2 * i - h - k) % 7;
+		var m = Math.floor((a + 11 * h + 22 * l) / 451);
+		var n0 = (h + l + 7 * m + 114)
+		var n = Math.floor(n0 / 31) - 1;
+		var p = n0 % 31 + 1;
+		return new Date(year, n, p + (offsetDays ? offsetDays : 0), 0, 0, 0);
+	}
+
+	$.fn.calendar = function(params) {
+		return new Calendar(params, this);
+	}
+}(jQuery));

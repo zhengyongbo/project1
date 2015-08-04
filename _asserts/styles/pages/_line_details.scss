@@ -1,10 +1,13 @@
-.line-image{
+.hh-line-details .line-details {
+	line-height:1.2;
+}
+.hh-line-details .line-image{
 	img{
 		width:100%;
 	}
 }
 
-.line-price {
+.hh-line-details .line-price {
 	background-color:#eee;
 	.price-text{
 		color: #ff5722;
@@ -14,4 +17,41 @@
 		text-align: right;
 		padding: 0;
 	}
+}
+.hh-line-details .details-header {
+	height:60px;
+	padding:0 10px;
+	font-size:1.1428em;
+	line-height:60px;
+}
+.hh-line-details .right-angle i{
+	color:$hover-font-color1;
+	font-size:2em;
+	padding-top:15px;
+}
+.hh-line-details .details-body {
+	padding:10px;
+	border-top:solid 1px $four-border-color;
+	border-bottom:solid 1px $four-border-color;
+	background:$four-bg-color;
+}
+.hh-line-details .details-body .col-xs-6{
+	line-height:2;
+}
+.hh-line-details .media{
+	padding:5px 0;
+}
+.hh-line-details .media.border-bottom{
+	padding-bottom:15px;
+	border-bottom:solid 1px $four-border-color;
+}
+.hh-line-details .media .media-left a{
+	width:40px;
+	height:40px;
+	display:block;
+	line-height:40px;
+	background:$main-bg-color;
+	border-radius:50% 50% 0 50%;
+	color:$main-front-color;
+	text-align:center;
 }

@@ -1,0 +1,25 @@
+- text: 产品信息
+  items: 
+    - content: 大象王朝 — 昆明、普洱、版纳、中缅边境（犀牛坪+亚洲象种源繁育）3飞6日游
+      title: true
+
+    - content: 日期：2015-07-14
+
+    - content: <span>成人：￥2999</span>
+      input_groups: true
+
+    - content: <span>儿童：￥2800</span>
+      input_groups: true
+
+    - content: 合计：￥5799
+
+- text: 联系信息
+  items: 
+    - label: 联系人：
+      placeholder: 请填写联系人
+
+    - label: 手 机：
+      placeholder: 请填写手机号码
+
+    - label: 邮 箱：
+      placeholder: 请填写邮箱

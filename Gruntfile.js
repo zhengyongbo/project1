@@ -176,7 +176,8 @@ module.exports = function(grunt) {
 
                 mainFiles: {
                     'nouislider': ['distribute/nouislider.js'],
-                    'bootstrap': ['dist/css/bootstrap.css', 'dist/js/bootstrap.js']
+                    'bootstrap': ['dist/css/bootstrap.css', 'dist/js/bootstrap.js'],
+                    'bootstrap-calendar': ['./js/language/zh-CN.js', './js/calendar.js','./css/calendar.css']
                 }
             }
         },

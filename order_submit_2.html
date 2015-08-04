@@ -1,0 +1,48 @@
+---
+layout: default
+title: 订单提交2
+slug: order_submit_2
+top_nav: top_nav_style1
+step: 2
+---
+
+{% include order_submit_header.html %}
+<div class="hh-order_submit_2">
+	<form class="form-horizontal">
+		
+		{% for arr in site.data.order_submit_2 %}
+		<h4 class="tips-header hh-font-weight hh-padding-10 hh-font-size-16">{{ arr.text }}</h4>
+		<div class="panel hh-padding-10 hh-margin-10">
+			{% assign items = arr.items %}
+			{% if forloop.first %}
+			  	{% for item in items %}
+					<div class="detail-row {% if item.title %} {{ 'detail-text hh-font-weight  hh-font-size-18' }} {% endif %} {% if item.input_groups %} {{ 'clearfix' }} {% endif %} {% if forloop.last %} {{ 'text-right' }} {% endif %} ">
+						{{item.content}}
+
+						{% if item.input_groups %}
+							{% include input_group.html %}
+						{% endif %}
+					</div>
+				{% endfor %}
+			{% endif %}
+			
+			{% if forloop.last %}
+				{% for item in items %}
+					<div class="form-group">
+			            <label for="input{{ forloop.index }}" class="control-label">{{ item.label }}</label>
+			            <div>
+			                <input id="input{{ forloop.index }}" type="text"  class="form-control" placeholder="{{ item.placeholder }}">
+			            </div>
+			        </div>
+				{% endfor %}
+			{% endif %}
+		</div>
+		{% endfor %}
+		
+		<div class="form-group hh-plr-10">
+			<div class="col-xs-12">
+				<a href="#" class="btn btn-warning btn-lg btn-raised btn-block">提交订单</a>
+			</div>
+	    </div>
+	</form>
+</div>
