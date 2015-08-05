@@ -1,0 +1,52 @@
+/*hh-year-month-lr*/
+.hh-year-month-lr{ 
+		 position:relative;
+		 margin:10px 0 0 0;
+		.pull-left , .pull-right {
+			padding:8px 10px;
+			margin-top:20px;
+			position:relative;
+			z-index:5;
+	}
+	h3 {
+		position:absolute;
+		top:32px;
+		right:0;
+		bottom:0;
+		left:0;
+		margin:auto;
+	}
+}
+
+.cal-context{
+	.cal-day-today span[data-cal-date] {
+	  color:$third-front-color;
+	}
+
+	span[data-cal-date] {
+	  opacity: .6;
+	}
+	.cal-day-today {
+	  background-color:$calendar-bg-color;
+	}
+	a, a:focus, a:hover {
+ 		color:$calendar-hover-font-color;
+	}
+	span[data-cal-date] {
+		margin-top: 0;
+}
+}
+@media (max-width:480px){
+	.cal-context{
+		font-size:0.7142em;
+		.events-list {
+		  padding-left:0;
+		}
+		.cal-month-box [class*=cal-cell], .cal-year-box [class*=span] {
+			min-height: 60px;
+		}
+		.cal-month-day {
+			height: 60px;
+		}
+	}
+}

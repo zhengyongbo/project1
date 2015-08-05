@@ -7,9 +7,15 @@
 		{% include {{ page.top_nav }}.html %}
     {% endif %}
     <div class="container panel full-height">
-        <div class="row hh-mlr--10 hh-pb-30">
+        <div class="row hh-mlr--10">
         	{{ content }}
         </div>
+        {% case page.bottom_nav %}
+        {% when 'bottom_nav_style1' %}
+            <div class="height50"></div>
+        {% when 'bottom_nav_style2' %}
+            <div class="height70"></div>
+        {% endcase %}
     </div>
     {% if page.bottom_nav %}
 		{% include {{ page.bottom_nav }}.html %}

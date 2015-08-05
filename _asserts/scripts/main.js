@@ -19,14 +19,16 @@ $(function() {
 
     if(shorPrice){
         noUiSlider.create(shorPrice, {
-            start: 2000,
+            start: 500,
             connect: "lower",
+            step:500,
             range: {
                 'min': [  0 ],
-                '12.5%': [  500 ],
-                '25%': [  1000 ],
-                '37.5%': [ 2000 ],
-                'max': [8000]
+                'max': [3500]
+            },
+            pips: { // Show a scale with the slider
+                mode: 'steps',
+                density: 2
             }
         });
     }
@@ -35,52 +37,68 @@ $(function() {
 
     if(shorDay){
         noUiSlider.create(shorDay, {
-            start: 2000,
+            start: 500,
             connect: "lower",
+            step:500,
             range: {
                 'min': [  0 ],
-                '12.5%': [  500 ],
-                '25%': [  1000 ],
-                '37.5%': [ 2000 ],
-                'max': [8000]
+                'max': [4000]
+            },
+            pips: { // Show a scale with the slider
+                mode: 'steps',
+                density: 2
             }
         });
     }
+
+    var priceInput = document.getElementById("price");
+    var dayInput = document.getElementById("day");   
+    var str1 = ['不限','0-500','500-1000','1000-2000','2000-3000','3000-4000','4000-8000','8000以上'];
+    var str2 = ['不限',1,2,3,4,5,6,7,'7天以上'];
+    shorPrice.noUiSlider.on('update', function( values, handle ) {
+            var num = (values[handle]*1)/500;
+            priceInput.value = str1[num];
+    });
+    shorDay.noUiSlider.on('update', function( values, handle ) {
+            var num = (values[handle]*1)/500;
+            dayInput.value = str2[num];
+    
+    });
 
     var now_seconds =  $.now();
     var day_seconds = 3600*24*1000;
     var events_source = [
         {
             "id": 293,
-            "title": "￥1999元",
+            "title": "￥1999",
             "start": now_seconds, // Milliseconds
             "end": now_seconds + 3600 // Milliseconds
         },
 
         {
             "id": 295,
-            "title": "￥1999元",
+            "title": "￥1999",
             "start": now_seconds + day_seconds, // Milliseconds
             "end": now_seconds + day_seconds + 3600 // Milliseconds
         },
 
         {
             "id": 296,
-            "title": "￥1999元",
+            "title": "￥1999",
             "start": now_seconds + 2*day_seconds, // Milliseconds
             "end": now_seconds + 2*day_seconds + 3600 // Milliseconds
         },
 
         {
             "id": 297,
-            "title": "￥1999元",
+            "title": "￥1999",
             "start": now_seconds + 3*day_seconds, // Milliseconds
             "end": now_seconds + 3*day_seconds + 3600 // Milliseconds
         },
 
         {
             "id": 298,
-            "title": "￥1999元",
+            "title": "￥1999",
             "start": now_seconds + 4*day_seconds, // Milliseconds
             "end": now_seconds + 4*day_seconds + 3600 // Milliseconds
         }
@@ -128,4 +146,14 @@ $(function() {
         calendar.setOptions({weekbox: false});
         calendar.view();
     }
+
+    //line_details page
+
+    $('#my-carousel').slick({
+        dots: true,
+        arrows: false,
+        autoplay:true,
+        autoplaySpeed:5000,
+        lazyLoad: 'ondemand'
+    });
 });

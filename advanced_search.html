@@ -26,7 +26,7 @@ top_nav: top_nav_style1
 						</div>
 					{% when "input" %}
 						<div class="col-xs-12 col-sm-6">
-							<input type="text" value="" class="form-control"><span>{{ item.placeholder }}</span>
+							<input id="{{ item.id }}" type="text" value="" class="form-control"><span>{{ item.placeholder }}</span>
 						</div>
 	            	{% endcase %}
 		            
@@ -35,29 +35,8 @@ top_nav: top_nav_style1
 	            	{% case item.type %}
 					{% when "slider_price" %}
 						<div id="shor-price" class="slider shor-price slider-warning"></div>
-						<div class="btn-group-justified">
-							<a href="" class="btn btn-default">不限</a>
-							<a href="" class="btn btn-default">500</a>
-							<a href="" class="btn btn-default">1000</a>
-							<a href="" class="btn btn-default">2000</a>
-							<a href="" class="btn btn-default">3000</a>
-							<a href="" class="btn btn-default">4000</a>
-							<a href="" class="btn btn-default">8000</a>
-							<a href="" class="btn btn-default">8000以上</a>
-						</div>
 					{% when "slider_day" %}
 						<div id="shor-day" class="slider shor-day slider-warning"></div>
-						<div class="btn-group-justified">
-							<a href="" class="btn btn-default">不限</a>
-							<a href="" class="btn btn-default">1天</a>
-							<a href="" class="btn btn-default">2天</a>
-							<a href="" class="btn btn-default">3天</a>
-							<a href="" class="btn btn-default">4天</a>
-							<a href="" class="btn btn-default">5天</a>
-							<a href="" class="btn btn-default">6天</a>
-							<a href="" class="btn btn-default">7天</a>
-							<a href="" class="btn btn-default">7天以上</a>
-						</div>
 					{% endcase %}
 					</div>
 	            {% endif %}

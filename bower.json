@@ -8,6 +8,7 @@
     "bootstrap": "~3.3.4",
     "bootstrap-material-design": "~0.3.0",
     "font-awesome": "~4.3.0",
-    "bootstrap-calendar": "~0.2.4"
+    "bootstrap-calendar": "~0.2.4",
+    "slick-carousel": "~1.5.8"
   }
 }

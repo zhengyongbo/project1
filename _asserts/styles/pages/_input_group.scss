@@ -1,0 +1,19 @@
+.input-group {
+	width:120px;
+	padding:0 30px;
+.left , .right {
+	width:25px;
+	padding:0;
+	margin:0;
+	font-size:25px;
+	line-height:1;
+	text-align:center;
+	
+}
+.left {
+	float:left; margin-left:-30px;
+}
+ .right {
+	float:right; margin-right:-30px;
+}
+}

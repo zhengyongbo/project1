@@ -1,0 +1,7 @@
+<div id="my-carousel">
+    {% for image in site.data.carousel %}
+        <div class="img-container">
+            <img src="asserts/images/{{ image.name }}" style="width:100%;">
+        </div>
+    {% endfor %}
+</div>

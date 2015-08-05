@@ -11,7 +11,7 @@
     - content: <span>儿童：￥2800</span>
       input_groups: true
 
-    - content: 合计：￥5799
+    - content: <span class="price-text"><small>合计：￥</small>5799</span>
 
 - text: 联系信息
   items: 

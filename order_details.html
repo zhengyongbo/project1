@@ -6,8 +6,51 @@ top_nav: top_nav_style1
 bottom_nav: bottom_nav_style2
 ---
 
-<h4 class="tips-header">套餐选择</h4>
+<form class="form-horizontal">
+    <div class="hh-pt-10 hh-plr-10">
+        <h4 class="tips-header hh-font-size-16 hh-font-weight">套餐选择</h4>
+        
+        	<a href="#" class="btn btn-warning btn-raised btn-sm no-margin">套餐A</a>
+        
+    </div>
+    {% for arr in site.data.order_details %}
+	<h4 class="tips-header hh-font-weight hh-padding-10 hh-font-size-16">{{ arr.text }}</h4>
+	<div class="panel hh-padding-10 hh-margin-10">
+		<table class="table table-bordered table-responsive">
+			{% assign items = arr.items %}
+			{% assign arr = [1,3,5,7] %}
+			{% assign arr2 = [2,4,6,8] %}
+			{% if forloop.first %}
+			  	{% for i in (0..8) %}
+			  		{% if i == 0 %}
+			  		<tr><td colspan="2"><div class="detail-text hh-font-weight  hh-font-size-18">{{items[i].content}}</div></td></tr>
+			  		{% else %}
 
-<h4 class="tips-header">日期选择</h4>
+						{% if i == 1 or i == 3 or i == 5 or i == 7 %}
+							<tr>
+						{% endif %}
+						
+						<td>{{items[i].content}}</td>
 
-<h4 class="tips-header">联系信息</h4>
+						{% if i == 2 or i == 4 or i == 6 or i == 8 %}
+							</tr>				
+						{% endif %}
+			  		{% endif %}
+				{% endfor %}
+			{% endif %}
+			
+			{% if forloop.last %}
+				{% for item in items %}
+					<tr>
+					<td>
+						{{item.content}}
+					</td>
+					</tr>
+				{% endfor %}
+			{% endif %}
+		</table>
+	</div>
+	{% endfor %}
+
+	{% include order_submit_bottom_btn.html %}
+</form>

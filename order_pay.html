@@ -1,0 +1,46 @@
+---
+layout: default
+title: 在线支付
+slug: order_pay
+top_nav: top_nav_style1
+bottom_nav: bottom_nav_style2
+btn_text: 确认支付
+---
+<form class="form-horizontal">
+    <div class="order-reminder text-warning text-center hh-plr-10 hh-pt-10">
+        <span class="mdi-alert-error hh-font-size-16 hh-pt-10"><b class="hh-font-size-14">请在1小时58分44秒内完成支付，以便我们为您保留订单</b></span>
+    </div>
+
+    <h4 class="tips-header hh-font-weight hh-padding-10 hh-font-size-16">结算信息</h4>
+    <div class="panel hh-padding-10 hh-margin-10">
+        <div class="detail-row detail-text hh-font-weight  hh-font-size-18">
+            大象王朝 — 昆明、普洱、版纳、中缅边境（犀牛坪+亚洲象种源繁育）3飞6日游
+        </div>
+
+        <div class="detail-row clearfix">
+            <div class="pull-left">数量：1<br>日期：2015-07-14</div>
+            <div class="pull-right hh-pt-20">
+                <span class="price-text"><small>￥</small>2990</span>
+            </div>
+        </div>
+    </div>
+    
+    <h4 class="tips-header hh-font-weight hh-padding-10 hh-font-size-16">选择支付方式</h4>
+    <div class="panel hh-padding-10 hh-margin-10">
+        <div class="media">
+          <div class="media-left">
+            <a href="#">
+              <img class="media-object hh-wh-50" src="asserts/images/wechat_logo.png" alt="微信支付">
+            </a>
+          </div>
+          <div class="media-body">
+            <h4 class="media-heading hh-mtp-5">微信支付<br><small>推荐已安装微信的用户使用</small></h4>
+            
+          </div>
+        </div>
+    </div>
+    
+    {% include order_submit_bottom_btn.html %}
+
+</form>
+

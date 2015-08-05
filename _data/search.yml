@@ -30,6 +30,7 @@
 
 - text: 单人预算
   type: input
+  id: price
   placeholder: 元
 
 - text: ""
@@ -37,6 +38,7 @@
 
 - text: 出行天数
   type: input
+  id: day
   placeholder: 天
 
 - text: ""

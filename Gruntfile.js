@@ -109,7 +109,8 @@ module.exports = function(grunt) {
                     src: [
                         'bootstrap/dist/fonts/{,*/}*.*',
                         'bootstrap-material-design/dist/fonts/{,*/}*.*',
-                        'font-awesome/fonts/{,*/}*.*'
+                        'font-awesome/fonts/{,*/}*.*',
+                        'slick-carousel/slick/fonts/{,*/}*.*'
                     ]
                 }, {
                     expand: true,
@@ -177,7 +178,8 @@ module.exports = function(grunt) {
                 mainFiles: {
                     'nouislider': ['distribute/nouislider.js'],
                     'bootstrap': ['dist/css/bootstrap.css', 'dist/js/bootstrap.js'],
-                    'bootstrap-calendar': ['./js/language/zh-CN.js', './js/calendar.js','./css/calendar.css']
+                    'bootstrap-calendar': ['./js/language/zh-CN.js', './js/calendar.js','./css/calendar.css'],
+                    'slick-carousel': ['slick/slick.js', 'slick/slick.css']
                 }
             }
         },
