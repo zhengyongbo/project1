@@ -1,0 +1,15 @@
+.img-container{
+	position:relative;
+	.img-intro{
+		position: absolute;
+		width: 100%;
+		bottom:0;
+		background-color: rgba(0,0,0,.3);
+		p{
+			display: block;
+		}
+		.intro-text{
+			font-weight: bold;
+		}
+	}
+}

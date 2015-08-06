@@ -1,15 +1,14 @@
+/*hh-order-row-content*/
 .hh-order-row-content {
     padding-top: 20px;
     padding-bottom: 30px;
-}
-
-.hh-order-row-content .list-group .list-group-item .list-group-item-heading {
-    font-size: 1.2em;
-    line-height: 1.28;
-}
-
-.hh-order-row-content .list-group .list-group-item .list-group-item-text {
-    font-size: 0.9em;
+	.list-group .list-group-item .list-group-item-heading {
+	    font-size: 1.2em;
+	    line-height: 1.28;
+	}
+	.list-group .list-group-item .list-group-item-text {
+	    font-size: 0.9em;
+	}
 }
 .hh-mt--10 {
 	margin-top:-10px;
@@ -24,54 +23,87 @@
 }
 /*hh-order_submit_header*/
 .hh-order_submit_header{
-.order-header-icons > a {
-	 display:table-cell;
-	 padding:20px 0 10px 0;
-	 text-align:center;
-	 color:$hover-font-color1;
-	 text-decoration:none;
-}
-.order-header-icons > a.active {
-	 color:$main-bg-color;
-}
-.order-header-icons > a .btn-info , .hh-order_submit_header .order-header-icons > a .btn-info:hover:not(.btn-link):not(.btn-flat) {
-	 background:$main-border-color;
-}
-.order-header-icons > a.active .btn-info , .hh-order_submit_header .order-header-icons > a.active .btn-info:hover:not(.btn-link):not(.btn-flat) {
-	 background:$main-bg-color;
-}
-.btn{
-	padding: 15px 0 8px 0;
-}
-.progress{
-	width:80%;
-	height:10px;
-	margin:-70px auto 70px auto;
-	background:$main-border-color;
-}
-.progress .progress-bar-info {
-    background-color:$main-bg-color;
-}
+	.order-header-icons > a {
+		 display:table-cell;
+		 padding:20px 0 10px 0;
+		 text-align:center;
+		 color:$hover-font-color1;
+		 text-decoration:none;
+	}
+	.order-header-icons > a.active {
+		 color:$main-bg-color;
+	}
+	.order-header-icons > a .btn-info , .hh-order_submit_header .order-header-icons > a .btn-info:hover:not(.btn-link):not(.btn-flat) {
+		 background:$main-border-color;
+	}
+	.order-header-icons > a.active .btn-info , .hh-order_submit_header .order-header-icons > a.active .btn-info:hover:not(.btn-link):not(.btn-flat) {
+		 background:$main-bg-color;
+	}
+	.btn{
+		padding: 15px 0 8px 0;
+	}
+	.progress{
+		width:80%;
+		height:10px;
+		margin:-70px auto 70px auto;
+		background:$main-border-color;
+	}
+	.progress .progress-bar-info {
+	    background-color:$main-bg-color;
+	}
 }
 /*hh-order_submit_2*/
 .hh-order_submit_2{
-.detail-row {
-	padding:5px 0;
-	border-bottom:dashed 1px $main-border-color;
-}
-.panel .form-group {
-	padding-left:90px;
-	
-}
-.panel .form-group .control-label {
-	width:75px;
-	float:left;
-	margin-left:-85px;
-	text-align:right;
-}
-.panel .form-group .row {
-	padding-top:5px;
-}
+	line-height:1.5;
+	.detail-row {
+		padding:5px 0;
+		border-bottom:dashed 1px $main-border-color;
+	}
+	.panel .form-group {
+		padding-left:90px;
+		
+	}
+	.panel .form-group .control-label {
+		width:75px;
+		float:left;
+		margin-left:-85px;
+		text-align:right;
+	}
+	.panel .form-group .row {
+		padding-top:5px;
+	}
+	.insure-list-group.list-group{
+		.list-group-item {
+		    padding: 0 0 0 6px;
+		}
+		.list-group-item .row-content {
+		    min-height: 40px;
+		    .least-content{
+		    	right:5px;
+		    }
+		}
+		.list-group-item .list-group-item-heading{
+			font-size:1em;
+		}
+		.list-group-item .row-action-primary  {
+		    padding-right:0;
+			label{
+				width:30px;
+				height:30px;
+			}
+		}
+		.checkbox {
+		    padding-top: 10px;
+		}
+		.list-group-separator::before {
+		    width: 100%;
+		}
+	}
+	.modal-title{
+		border-bottom:solid 1px $main-border-color;
+		padding:10px 0;
+		margin:10px 0;
+	}
 }
 @media (max-width:767px){
 	.hh-order_submit_2 .panel .form-group .row {

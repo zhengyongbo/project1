@@ -1,0 +1,79 @@
+$search-input-height: 50px;
+$search-input-padding: 0px 20px;
+$search-font-size: 20px;
+$search-line-height: 1;
+$search-input-icon-size: $search-font-size*$search-line-height;
+$background-color: $main-front-color;
+$search-background: lighten($background-color, 35%);
+$search-background-active: lighten($background-color, 20%);
+$search-color: $main-bg-color;
+$search-btn-active:  $main-bg-color;
+
+@mixin input-placeholder {
+  &.placeholder { @content; }
+  &:-moz-placeholder { @content; }
+  &::-moz-placeholder { @content; }
+  &:-ms-input-placeholder { @content; }
+  &::-webkit-input-placeholder { @content; }
+}
+
+.search-bar{
+	background-color: $main-bg-color;
+}
+
+.searchbox-container {
+   margin: 0 auto;
+   height: $search-input-height;
+   width: 90%;
+}
+
+.searchbutton, .searchbox {
+	-webkit-transition: background-color .3s;
+	   -moz-transition: background-color .3s;
+	    -ms-transition: background-color .3s;
+	     -o-transition: background-color .3s;
+	        transition: background-color .3s;
+  font-size: $search-font-size;
+  line-height: $search-line-height;
+  color: $search-color;
+  border-radius: 0;
+  float: left;
+  border: none;
+  height: $search-input-height;
+  outline: none;
+  background: $search-background;
+}
+
+input[type="search"] {
+    border-radius: 0;
+    -webkit-appearance: none;
+}
+
+.searchbox {
+  padding: $search-input-padding;
+  
+  &:focus, &:hover {
+    background-color: $search-background-active;
+    + .searchbutton {
+      background-color: $search-background-active;
+    }
+  }
+
+  @include input-placeholder {
+    color: $search-color;
+    font-style: italic;
+  }
+}
+
+.searchbutton {
+  width: 50px;
+  padding: 0;
+  text-align: center;
+  
+  &:hover, &:focus {
+    color: $search-btn-active;
+  }
+  &:active {
+    color: darken($search-btn-active, 20%);
+  }
+}

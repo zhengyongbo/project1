@@ -4,6 +4,7 @@ title: 订单提交2
 slug: order_submit_2
 top_nav: top_nav_style1
 step: 2
+btn_text: 下一步
 ---
 
 {% include order_submit_header.html %}
@@ -26,7 +27,7 @@ step: 2
 				{% endfor %}
 			{% endif %}
 			
-			{% if forloop.last %}
+			{% if forloop.index0 == 1 %}
 				{% for item in items %}
 					<div class="form-group">
 			            <label for="input{{ forloop.index }}" class="control-label">{{ item.label }}</label>
@@ -36,9 +37,70 @@ step: 2
 			        </div>
 				{% endfor %}
 			{% endif %}
+			
+			{% if forloop.last %}
+				<div class="list-group insure-list-group">
+				{% for item in items %}				
+					<div class="list-group-item">
+				        <div class="row-action-primary checkbox checkbox-material-deep-orange">
+				            <label><input type="checkbox"></label>
+				        </div>
+				        <div class="row-content">
+				            <h4 class="list-group-item-heading">{{ item.text }}</h4>
+				            <p class="list-group-item-text">
+                            	<a href="javascript:void(0)" data-toggle="modal" data-target="#insuranceModal"  class="text-muted"><small>说明 <span class="caret"></span></small></a>
+                        	</p>
+				            <div class="least-content hh-pt-10">
+				            	<div class="price">
+				            		<b class="text-warning">{{ item.price }}</b> <small>/份</small>
+				            	</div>
+				            	<div class="nums">
+				            		<i class="mdi-content-clear hh-font-size-14"></i>2
+				            	</div>
+				            </div>
+				        </div>
+				    </div>
+				    <div class="list-group-separator"></div>
+				{% endfor %}
+					<div class="list-group-item text-center">
+						<a href="#" class="text-info">更多保险</a>
+					</div>
+				</div>
+			{% endif %}
 		</div>
 		{% endfor %}
 		
 		{% include order_submit_bottom_btn.html %}
 	</form>
+
+	<div id="insuranceModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	                <h4 class="modal-title">全球旅游意外保险全面款</h4>
+	            </div>
+	            <div class="modal-body">
+	                <p>德华安顾统一客服电话：400-888-0011</p>
+					<p>1、投保年龄：6个月-80周岁（6个月-65周岁为标准费率，66-75周岁加费50%，76-80周岁加费100%；不适用于从事劳务和工作的人群）</p>
+					<p>2、保险期限：1-365天（以保单记录时间为准）</p>
+					<p>3、保险责任特别约定：</p>
+					<p>1）医疗部分免赔额为800元每次保险事故，救援部分无免赔；医疗责任覆盖境外门诊和住院的意外和突发性疾病</p>
+					<p>2）亲属慰问探访与亲属处理后事部分：承担往返经济舱交通费用及当地住宿费用，每日住宿费用不超过800元。</p>
+					<p>4、紧急救援责任：对于本产品包含的紧急救援责任，出险后请优先拨打紧急救援电话：86-10-84416560（境外救援咨询、救助服务热线与救援理赔等）</p>
+					<p>5、被保险人年龄已满18周岁，投保人、被保险人须为同一人；被保险人年龄未满18周岁，投保人只能为被保险人父亲或母亲。</p>
+					<p>6、保险期间根据您的团期确定，您至少须在出发前1日完成投保，保险期间为您团期的开始日期的当日零时至您团期结束的当日24时。</p>
+					<p>7、投保成功以后，您可以至公司网站www.ergo-life.cn查询并下载您的电子保单。</p>
+					<p>8、本保险身故受益人为法定。</p>
+					<p>9、如您选择投保，表示确认投保人、被保险人同意购买且认可保险金额。</p>
+					<p>10、本产品只针对中国境内出发的旅客。</p>
+					<p>详情请见德华安顾全球保险，请详细阅读其他条款</p>
+					<p>本页面展示保险产品价格为参考价，实际价格会根据年龄发生变化，以订单生成时价格为准；保险产品将根据您选择的出行日期确定承保日期，如遇行程变动，请在订单管理中进行保期修改或退保操作。生效保单将无法变更或退保。</p>
+	            </div>
+	            <div class="modal-footer">
+	                
+	            </div>
+	        </div>
+	    </div>
+	</div>
 </div>

@@ -1,7 +1,7 @@
 - text: 参团性质
   type: btns
   btns: 
-    - 参团旅游
+    - 参团旅游游
     - 团队游
     - 自驾游
     - 自由行
@@ -27,6 +27,18 @@
 
 - text: 出发日期
   type: date_input
+
+- text: 目的地
+  type: btns
+  btns:
+    - 上海
+    - 北京
+    - 杭州
+    - 三亚
+    - 厦门
+    - 桂林
+    - 桂林
+    - ...
 
 - text: 单人预算
   type: input

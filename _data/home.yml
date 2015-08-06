@@ -1,0 +1,17 @@
+tour_icons:
+  - icon: mdi-maps-directions-bus
+    text: 周边游
+    bg_class: well-warning 
+
+  - icon: mdi-maps-directions-transit
+    text: 国内游
+    bg_class: well-material-yellow
+
+  - icon: mdi-maps-flight
+    text: 出境游
+    bg_class: well-info
+
+line_images:
+  url: line_recomm_01.png
+  text: 张家界三天两晚张家界三天两晚
+  price: <small>￥</small>100<small>起</small>

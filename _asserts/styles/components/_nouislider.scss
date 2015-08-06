@@ -14,7 +14,7 @@
 .noUi-pips {
 	position: absolute;
 	font: 400 12px Arial;
-	color: #999;
+	color: $hover-font-color1;
 }
 
 /* Values;
@@ -26,8 +26,8 @@
 	text-align: center;
 }
 .noUi-value-sub {
-	color: #ccc;
-	font-size: 10px;
+	color: $hover-font-color1;
+	font: 400 12px Arial;
 }
 
 /* Markings;
@@ -56,22 +56,20 @@
 }
 .noUi-value-horizontal {
 	margin-left: -20px;
-	padding-top: 20px;
-}
-.noUi-value-horizontal.noUi-value-sub {
-	padding-top: 15px;
 }
 
 .noUi-marker-horizontal.noUi-marker {
 	margin-left: -1px;
 	width: 2px;
 	height: 5px;
+	display:none;
 }
 .noUi-marker-horizontal.noUi-marker-sub {
 	height: 10px;
 }
 .noUi-marker-horizontal.noUi-marker-large {
 	height: 15px;
+	display:none;
 }
 
 /* Vertical layout;

@@ -2,45 +2,59 @@
 layout: default
 title: 首页
 slug: home
+carousel_text: true
+bottom_nav: bottom_nav_style2
 ---
+<div class="hh-home">
+    <div class="search-bar">
+        <form class="searchbox-container clearfix">
+            <a href="select_city.html" class="select_city">长沙 <span class="caret"></span></a>
+            <input type="search" class="searchbox" name="q" autocomplete="off" placeholder="Search">
+            <button type="submit" class="searchbutton fa fa-search"></button>
+        </form>
+    </div>
+    <div class="more-search clearfix">
+        <a href="" title="">
+            <i class="mdi-action-find-replace text-info hh-font-size-18 pull-left"></i>
+            <span>更多搜索：类型、主题、时间、预算、出游方式</span>
+            <i class="mdi-hardware-keyboard-arrow-right text-info  pull-right"></i>
+        </a>
+    </div>
+    {% include carousel.html %}
 
-<div class="home-heading row">
-    <div class="col-xs-3">
-        <p class="head-text text-right"><i class="fa fa-map-marker i-address"></i>长沙</p>
-    </div>
-    <div class="col-xs-7">
-        <input type="text" name="" value="" placeholder="" class="head-search">
-    </div>
-    <div class="col-xs-2">
-        <p class="head-text text-left"><i class="fa fa-phone"></i></p>
-    </div>
-</div>
-<div class="row more-search">
-    <div class="col-xs-3">
-        <p class="left-content text-right no-margin">更多搜索</p>
-    </div>
-    <div class="col-xs-9">
-        <ul class="list-inline search-list">
-            <li>
-                <a href="#">类型</a>
-            </li>
-            <li>
-            	<a href="">主题</a>
-            </li>
-            <li>
-            	<a href="">时间</a>
-            </li>
-            <li>
-            	<a href="">预算</a>
-            </li>
-            <li>
-            	<a href="">出游方式</a>
-            </li>
-        </ul>
-    </div>
-</div>
-<div class="row">
-	<img class="travel-img" src="asserts/images/home_01.png" alt="贵州黔东南吊脚楼">
-</div>
+    {% assign home_data = site.data.home %}
 
+    <div class="btn-group btn-group-justified my-btn-group">
+        {% for item in home_data.tour_icons %}
+             <a href="javascript:void(0)" class="btn btn-fab btn-raised {{ item.bg_class }}">
+                <i class=" {{ item.icon }}"></i><b class="hh-font-size-18">{{ item.text }}</b>
+             </a>
+        {% endfor %}
+    </div>
+
+    <div class="line-recomm">
+        <div class="recomm-header clearfix hh-line-1 hh-padding-10">
+            <div class="pull-left">线路推荐</div>
+            <div class="pull-right"><a href="tour_list.html"><i class="mdi-hardware-keyboard-arrow-right"></i></a></div>
+        </div>
+        <div class="recomm-body">
+            {% for i in (1..8) %}
+                {% assign item = home_data.line_images %}
+                <div class="col-xs-6">
+                    <div class="image-wrapper">
+                        <img src="asserts/images/{{ item.url }}" alt="线路推荐{{ i }}">
+                        <div class="image-intro clearfix">
+                            <div class="title">
+                                {{ item.text }}
+                            </div>
+                        </div>
+                        <div class="price">
+                            {{ item.price }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 

@@ -8,39 +8,52 @@ top_nav: top_nav_style1
 <form class="form-horizontal search-form advanced-search">
 	<fieldset>
 		{% for item in site.data.search %}
-			<div class=" form-group row xx">
+			
 				{% if item.text != empty %}
-		            <label for="inputEmail" class="control-label">{{ item.text }}</label>
 					{% case item.type %}
 					{% when "btns" %}
-						<div class="col-xs-12">
+					<div class=" form-group hh-border-b-10">
+						<label for="inputEmail" class="col-xs-12 row hh-font-size-16">{{ item.text }}</label>
+						<div class="col-xs-12 row btn-fix-with-group">
 							{% for btn in item.btns %}
-								<a href="#" class="btn btn-sm btn-default btn-raised hh-font-size-14">{{ btn }}</a>
+								<a href="#" class="btn btn-default btn-raised hh-font-size-14">{{ btn }}</a>
 							{% endfor %}
 						</div>
+					</div>
 					{% when "date_input" %}
+					<div class=" form-group hh-row hh-border-b-10">
+						<label for="inputEmail" class="control-label hh-font-size-16">{{ item.text }}</label>
 						<div class="col-xs-12 col-sm-6">
 							<input type="text" value="" class="form-control" >
 							<span>-</span>
 							<input type="text" value="" class="form-control" >
 						</div>
+					</div>
 					{% when "input" %}
+					<div class=" form-group hh-row">
+						<label for="inputEmail" class="control-label hh-font-size-16">{{ item.text }}</label>
 						<div class="col-xs-12 col-sm-6">
-							<input id="{{ item.id }}" type="text" value="" class="form-control"><span>{{ item.placeholder }}</span>
+							<input id="{{ item.id }}" type="text" value="" class="form-control text-center"><span>{{ item.placeholder }}</span>
 						</div>
+					</div>
 	            	{% endcase %}
 		            
+		            
 	            {% else %}
-	            	<div class="slider-style">
+
+	            	
 	            	{% case item.type %}
 					{% when "slider_price" %}
+					<div class="slider-style hh-border-b-10">
 						<div id="shor-price" class="slider shor-price slider-warning"></div>
-					{% when "slider_day" %}
-						<div id="shor-day" class="slider shor-day slider-warning"></div>
-					{% endcase %}
 					</div>
+					{% when "slider_day" %}
+					<div class="slider-style">
+						<div id="shor-day" class="slider shor-day slider-warning"></div>
+					</div>
+					{% endcase %}
+					
 	            {% endif %}
-	        </div>
         {% endfor %}
 
         <div class="form-group">

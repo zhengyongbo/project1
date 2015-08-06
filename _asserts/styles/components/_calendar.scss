@@ -34,7 +34,17 @@
 	}
 	span[data-cal-date] {
 		margin-top: 0;
-}
+	}
+
+	.well-warning{
+		span[data-cal-date] {
+		  color:$main-front-color;
+		}
+
+		a, a:focus, a:hover {
+	 		color:$main-front-color;
+		}
+	}
 }
 @media (max-width:480px){
 	.cal-context{

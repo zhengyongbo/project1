@@ -23,3 +23,11 @@
 
     - label: 邮 箱：
       placeholder: 请填写邮箱
+
+- text: 保险
+  items: 
+    - text: 全球旅游意外保险全面额全球旅游意外保险全面额
+      price: ￥72
+
+    - text: 全球旅游意外保险全面额
+      price: ￥72

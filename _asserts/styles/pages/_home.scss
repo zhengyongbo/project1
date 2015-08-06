@@ -1,43 +1,125 @@
-.home-heading{
-	background-color: $main-bg-color;
-	color:$main-front-color;
-	.head-text{
-		font-size: 2em;
-		vertical-align: middle;
-		padding-top: 0.5em;
-			
-		.i-address{
-			padding-right:10px;
-		}
-	}
+.hh-home{
+    .search-bar{
+        padding:10px;
+        line-height:48px;
+        .searchbox-container {
+            width:auto;
+            height: 50px;
+            margin: 0 60px 0 80px;
+            .select_city , .searchbox , .searchbutton {
+                border:solid 1px $main-border-color;
+                background:$third-bg-color;
+                font-size:$hover-font-color1;
+            }
+            .select_city{
+                width:80px;
+                margin-left:-80px;
+                float:left;
+                border-radius:10px 0 0 10px;
+                text-align:center;
+            }
+            .searchbox{
+                width:100%;
+                float:left;
+                border-left:none;
+                border-right:none;
+                font-size: 14px;
+            }
+            .searchbutton{
+                width:60px;
+                margin-right:-60px;
+                float:right;
+                border-left:0;
+                border-radius:0 10px 10px 0;
+                text-align:center;
+            }
+        }
+    }
+    .more-search {
+        background-color: $second-bg-color;
+        padding: 0.8em 5px 0.5em 5px;
+        a{
+            color:$hover-font-color1;
+            span{
+                width:80%;
+                height:24px;
+                margin-top:-3px;
+                overflow:hidden;
+                float:left;
+            }
+        }
+        .left-content {}
+        .search-list {
+            display: inline-block;
+        }
+    }
+    .img-container {
 
-	.head-search{
-		outline: 0;
-		width: 100%;
-		display: block;
-		margin-top: 0.5em;
-		border: none;
-		padding: 1em;
-		border-radius: 20px;
-		color: #000;
-	}
-}
+        p{
+            padding:0 10px;
+            font:18px/1.2 Microsoft YaHei,SimSun,Arial;
+        }
+    }
+    .my-btn-group a i{
+        margin:0 auto;
+    }
+    .line-recomm {
+        .recomm-header{
+            .pull-left{
+                border-left:solid 8px $main-bg-color;
+                color:$second-color-color;
+                font-weight:bold;
+                font-size:1.2857em;
+                line-height:1;
+                padding-left:10px;
+                margin-top:5px;
+            }
+            .pull-right{
+                padding-top:5px;
+                a{
+                    color:$hover-font-color1;
+                }
+            }
+        }
+        .recomm-body{
+            padding:5px;
+            .col-xs-6{
+                padding:5px;
+                .title {
+                    height:30px;
+                    overflow:hidden;
+                }
+                .price{
+                    float:right;
+                    position: absolute;
+                    right:0;
+                    top:0; 
+                    padding-right:3px;
+                    background-color:$main-bg-color;
+                    color:$main-front-color;
+                    line-height:1.5;
+                }
+            }
+        }
+    }
+    .travel-img {
+        width: 100%;
+        display: block;
+    }
 
-.more-search{
-	background-color: $second-bg-color;
-	padding: 0.8em 0;
-	.left-content{
-		font-size: 1.5em;
-	}
+    .image-wrapper {
+        position: relative;
 
-	.search-list{
-		font-size: 1.4em;
-		margin-bottom: 0;
-		padding-top: 2px;
-	}
-}
-
-.travel-img{
-	width:100%;
-	display:block;
+        img {
+            width: 100%;
+        }
+        .image-intro {
+            position: absolute;
+            padding:0 5px;
+            bottom: 0;
+            width: 100%;
+            color: #fff;
+            background-color: rgba(0, 0, 0, .5);
+        }
+    }
 }

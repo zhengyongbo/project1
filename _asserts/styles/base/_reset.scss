@@ -23,6 +23,14 @@ ul , ol , li {
 .h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
   font-family:Microsoft YaHei,SimSun,Arial;
 }
+.hh-width-100p {
+	width:100%;
+}
+.height10{
+	height:10px;
+	font-size:0;
+	line-height:0;
+}
 .height50{
 	height:50px;
 }
@@ -44,14 +52,23 @@ ul , ol , li {
 	margin-top:5px;
 	margin-bottom:5px;
 }
+.hh-mt-10{
+	margin-top:10px;
+}
 .hh-margin-10 {
 	margin:10px;
+}
+.hh-margin--10 {
+	margin:-10px;
 }
 .no-padding{
 	padding:0;
 }
 .hh-pt-10 {
     padding-top:10px;
+}
+.hh-pt-15 {
+    padding-top:15px;
 }
 .hh-pt-20 {
     padding-top:20px;
@@ -75,11 +92,18 @@ ul , ol , li {
 .hh-padding-10 {
 	padding:10px;
 }
+.hh-padding-0 {
+	padding:0;
+}
 
 .hh-font-weight{
 	font-weight:bold;
 }
-
+.hh-line-1{
+	background:$four-bg-color;
+	border-top:solid 1px $four-border-color;
+	border-bottom:solid 1px $four-border-color;
+}
 @for $size from 10 through 24 {
 	.hh-font-size-#{$size} {
 		font-size: #{$size}px;
@@ -103,4 +127,25 @@ ul , ol , li {
 	font-weight: bold;
 	text-align: right;
 	padding: 0;
+}
+.hh-fixed-bottom-btn {
+	position:fixed;
+	margin:0;
+	padding:0;
+	bottom:0;
+	background:$third-bg-color;
+	.full-width{
+		margin:-15px -15px 5px -15px;
+	}
+}
+@media (max-width:767px){
+	.container.hh-fixed-bottom-btn{
+		width:100%;
+}
+}
+.btn-fix-with-group .btn {
+	width:80px;
+	text-align:center;
+	padding:5px;
+	overflow:hidden;
 }

@@ -3,6 +3,7 @@ layout: default
 title: 线路详情
 slug: line_details
 top_nav: top_nav_style1
+btn_text: 立即抢购
 ---
 <div class="hh-line-details">
     <div class="line-header">
@@ -10,72 +11,90 @@ top_nav: top_nav_style1
         <div class="line-info">
             <h4 class="hh-font-weight hh-plr-10">昆明 新西兰-南北岛8日游 宿梯卡坡，山顶自助餐，赠玛塔玛塔，萤火虫洞,7月观星</h4>
         </div>
-        <div class="line-price clearfix">
+        <div class="clearfix hh-padding-10">
             <span class="price-text"><small>￥</small>2990</span>
-            <a href="#" class="btn btn-danger btn-lg no-margin pull-right">立即支付</a>
+            <a href="#" class="btn btn-warning btn-lg no-margin pull-right">{{ page.btn_text }}</a>
         </div>
     </div>
-    
+
+    <div class="hh-line-1 height10"></div>
+
     <div class="line-date">
-        <div class="clearfix">
-            <h4 class="hh-font-weight">查看班期和价格日历</h4>
-            <i class="fa fa-chevron-right pull-right"></i>
+        <div class="clearfix hh-plr-10">
+            <h4 class="tips-header hh-font-weight hh-font-size-16 pull-left">查看班期和价格日历</h4>
+            <i class="mdi-hardware-keyboard-arrow-right pull-right hh-pt-15"></i>
         </div>
-        <div class="line-date-body">
+        <div class="line-date-body btn-fix-with-group">
             {% for i in (1..10) %}
                 
                 {% if forloop.last %}
-                    <a href="#" class="btn btn-raised btn-sm">...</a>
+                    <a href="#" class="btn btn-raised">...</a>
                 {% else %}
-                    <a href="#" class="btn btn-raised btn-sm">08/{{ i | plus:10 }}</a>
+                    <a href="#" class="btn btn-raised">08/{{ i | plus:10 }}</a>
                 {% endif %}
 
             {% endfor %}
         </div>
     </div>
+
+    <div class="hh-line-1 height10"></div>
     
-    <div class="btn-group btn-group-justified">
+
+    <div class="navbar-x">
+      <div class="container hh-plr-0">    
+        <ul class="nav nav-pills hh-width-100p">
         {% for item in site.data.line_details %}
-            <a href="javascript:void(0)" class="btn btn-default">{{ item.text }}</a>
-        {% endfor %}
+          <li class="{% if forloop.first %} {{ 'active' }} {% endif %}"><a href="javascript:void(0)">{{ item.text }}</a></li>
+          {% endfor %}
+          <li class="bottom-bar"></li>
+        </ul>
+        <div class="hh-line-2"></div>
+      </div>
     </div>
 
 
     {% for item in site.data.line_details %}
 
-    <div class="line-details">
+    <div class="line-details hh-padding-10">
         {% if forloop.first %}
-
-        {% else %}
-        <div class="details-header clearfix">
-        	<span class="hh-font-weight">{{ item.text }}</span>
-        </div>
-        {% endif %}
-    
-        {% if item.slug == 'route_intro' %}
-            {% for i in (1..2) %}
-            <div class="details-body">
-                <div class="media">
-                    <div class="media-left">
-                        <a href="#">D{{ i }}</a>
-                    </div>
-                    <div class="media-body">
-                        {{ item.content }}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="details-body">
+            <div class="details-body hh-padding-10 hh-margin--10">
                 {{ item.content }} 
             </div>
-        {% endif %}    
+        {% else %}
+        <div class="details-header clearfix">
+            <div class="hh-line-3"></div>
+        	<span class="hh-font-weight">{{ item.text }}</span>
+        </div>
+    
+        {% if item.slug == 'route_intro' %}
+            <div class="panel hh-plr-10 no-margin">
+                {% for i in (1..2) %}
+                <div class="details-body hh-ptp-10">
+                    <div class="media">
+                        <div class="media-left">
+                            <a href="#">D{{ i }}</a>
+                        </div>
+                        <div class="media-body">
+                            {{ item.content }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="panel hh-padding-10 no-margin">
+                {{ item.content }} 
+            </div>
+        {% endif %}   
 
-        
+        {% endif %}
     </div>
     {% endfor %}
 </div>
-
+<div class="height70"></div>
+<div class="container hh-fixed-bottom-btn">
+<div class="full-width">{% include order_submit_bottom_btn.html %}</div>
+</div>
 
 
 

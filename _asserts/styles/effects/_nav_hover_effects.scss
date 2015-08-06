@@ -1,0 +1,88 @@
+$item-width: 20%;
+$hover-bottom-bar-name: bottom-bar;
+$element-count: 5;
+$black: $third-front-color;
+$gray: $hover-font-color1;
+
+@mixin hover-colors($color:inherit, $background-color:inherit){
+  &:hover, &:focus {
+    color: $color;
+    background-color: $background-color;
+  }
+}
+
+.navbar-x {
+
+  text-align: center;
+  font-size:16px;
+
+  .nav {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+width: 100%;
+    &:hover,
+      &:focus{ 
+        &.nav-pills > li.active > a{
+          color: $gray;
+        @include hover-colors($black);
+          }
+          }
+    > li{
+width: 20%; padding-left:0; padding-right:0; margin-left:0; margin-right:0;
+      > a {
+        width: 100%;
+        padding:10px 0;
+        color: $gray;
+        transition: color 0.42s ease-in-out;
+
+        @include hover-colors($black);
+      } // / > a
+
+      &.active{
+        > a {
+          color: $black;
+          background-color: inherit;
+
+        }
+          
+      } // / &.active > a
+
+      &.#{$hover-bottom-bar-name} {
+        transition: left 0.42s ease-in-out;
+
+        position: absolute;
+        height: 3px;
+        width: $item-width;
+        bottom: 0;
+        background-color: $main-bg-color;
+
+      } // / .#{$hover-bottom-bar-name}{
+        
+      @for $i from 1 through $element-count {
+        &:nth-child(#{$i}){
+
+          &.active  ~ .#{$hover-bottom-bar-name} {
+            left: (($i - 1) * $item-width);
+          }
+
+          &:hover,
+          &:focus{
+            ~ .#{$hover-bottom-bar-name}{
+              left: (($i - 1) * $item-width) !important;
+            }
+
+          }
+
+        }// / &:nth-child(#{$i})
+      }// / @for $i from 1 through $element-count
+
+    }// / > li
+  }// / .nav
+}// /.navbar-x
+
+@media (max-width:480px){
+    .navbar-x{
+        font-size:12px;
+    }
+}
