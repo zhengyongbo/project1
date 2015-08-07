@@ -46,6 +46,7 @@
                 margin-top:-3px;
                 overflow:hidden;
                 float:left;
+                line-height:2;
             }
         }
         .left-content {}
@@ -60,8 +61,15 @@
             font:18px/1 Microsoft YaHei,SimSun,Arial;
         }
     }
-    .my-btn-group a i{
-        margin:0 auto;
+    .my-btn-group{
+        margin-bottom:0;
+        width:99%;
+        a.btn.btn-fab {
+            padding:15px 0;
+            i{
+                margin:0 auto;
+            }
+        }
     }
     .line-recomm {
         .recomm-header{
@@ -77,9 +85,6 @@
             }
             .pull-right{
                 padding-top:3px;
-                a{
-                    color:$hover-font-color1;
-                }
             }
         }
         .recomm-body{

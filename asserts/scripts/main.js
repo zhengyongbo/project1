@@ -8,12 +8,39 @@ $(function() {
         $(this).tab('show');
     });
 
-    $('#go-top').click(function() {
+    $(window).scroll(function() {
+        if ($(this).scrollTop() > 100) {
+            $('#fixed-actions').fadeIn();
+        } else {
+            $('#fixed-actions').fadeOut();
+        }
+    });
+
+    $('#scrollTop').click(function() {
         $('html, body').animate({
             scrollTop: 0
         }, 600);
         return false;
     });
+
+    //line_details nav
+    
+    // var $detail_nav = $('#line_detail_nav');
+
+    // if($detail_nav){
+    //     var fix_class = 'line_detail_nav_fixed';
+         
+    //     $(window).scroll(function() {
+    //         if ($(this).scrollTop() >= navTop -50 ) {
+    //             $detail_nav.addClass(fix_class);
+    //         } else {
+    //             $detail_nav.removeClass(fix_class);
+    //         }
+    //     });
+
+    //     var navTop = $detail_nav.position().top;
+
+    // }
 
     var str1 = ['不限', '0-500', '500-1K', '1K-2K', '2K-3K', '3K-4K', '4K-8K', '8K以上'];
     var str2 = ['不限', 1, 2, 3, 4, 5, 6, 7, '7天以上'];

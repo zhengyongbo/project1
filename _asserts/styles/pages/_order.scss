@@ -33,9 +33,10 @@
 	.order-header-icons > a.active {
 		 color:$main-bg-color;
 	}
-	.order-header-icons > a .btn-info , .hh-order_submit_header .order-header-icons > a .btn-info:hover:not(.btn-link):not(.btn-flat) {
+	.order-header-icons > a .btn-info , .order-header-icons > a .btn-info:hover:not(.btn-link):not(.btn-flat) {
 		 background:$main-border-color;
 	}
+
 	.order-header-icons > a.active .btn-info , .hh-order_submit_header .order-header-icons > a.active .btn-info:hover:not(.btn-link):not(.btn-flat) {
 		 background:$main-bg-color;
 	}
@@ -109,4 +110,9 @@
 	.hh-order_submit_2 .panel .form-group .row {
 	padding-top:0;
 }
+}
+/*order-submit-bottom*/
+.order-submit-bottom.form-group{
+	margin-left:0;
+	margin-right:0;
 }

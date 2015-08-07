@@ -1,0 +1,23 @@
+.go-top{
+	position:fixed;
+	margin:0 auto;
+	padding:0;
+	bottom:0;
+	left:0;
+	right:0;
+	z-index: 5000;
+	.full-width{
+		margin:-15px -15px 5px -15px;
+		a{
+			position:absolute;
+			right:10px;
+			bottom:80px;
+			opacity:.8;
+		}
+	}
+}
+@media (max-width:767px){
+	.container.go-top{
+		width:100%;
+}
+}

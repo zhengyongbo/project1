@@ -3,7 +3,7 @@ html,body{
 }
 @media (max-width:767px){
 	html,body{
-	overflow-x:hidden;
+	//overflow-x:hidden;
 }
 }
 .full-height{
@@ -48,7 +48,11 @@ ul , ol , li {
 	margin-left:-10px;
 	margin-right:-10px;
 }
-.hh-mtp-5{
+.hh-mtb-0 {
+	margin-top:0;
+	margin-bottom:0;
+}
+.hh-mtb-5{
 	margin-top:5px;
 	margin-bottom:5px;
 }
@@ -119,6 +123,16 @@ ul , ol , li {
 }
 .btn-info:not(.btn-link):not(.btn-flat){
 	background-color:$main-bg-color;
+}
+.form-control{
+	background-image: none !important;
+	border-bottom: 1px solid $four-border-color !important;
+	transition-duration:.5s;
+}
+.form-control:focus{
+	background-image: none !important;
+	border-bottom: 1px solid $main-bg-color !important;
+	transition-duration:.5s;
 }
 .price-text{
 	color: $five-font-color1;
