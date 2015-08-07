@@ -975,7 +975,7 @@ input {
   width: 1px; }
 
 .grid-container {
-  margin: 0 auto;
+  margin: 0 15px;
   width: 80%; }
 
 /* Slider */
