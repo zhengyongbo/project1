@@ -975,8 +975,7 @@ input {
   width: 1px; }
 
 .grid-container {
-  margin: 0 15px;
-  width: 80%; }
+  margin: 0 15px; }
 
 /* Slider */
 .slick-loading .slick-list {
