@@ -695,17 +695,31 @@ input[type="search"] {
 .hh-home .travel-img {
   width: 100%;
   display: block; }
-.hh-home .image-wrapper {
+.hh-home .image-wrapper .image-intro {
+  position: absolute;
+  padding: 0 5px;
+  bottom: 0;
+  width: 100%;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5); }
+
+.hh-big-pic {
   position: relative; }
-  .hh-home .image-wrapper img {
+  .hh-big-pic img {
     width: 100%; }
-  .hh-home .image-wrapper .image-intro {
+  .hh-big-pic .pic {
     position: absolute;
-    padding: 0 5px;
+    top: 0;
+    right: 0;
     bottom: 0;
-    width: 100%;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.5); }
+    left: 0;
+    margin: 0;
+    overflow: hidden; }
+    .hh-big-pic .pic img {
+      width: auto;
+      height: auto;
+      min-width: 100%;
+      min-height: 100%; }
 
 /*hh-order-row-content*/
 .hh-order-row-content {

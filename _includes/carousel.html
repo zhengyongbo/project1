@@ -1,7 +1,10 @@
 <div id="my-carousel">
     {% for image in site.data.carousel %}
-        <div class="img-container">
-            <img src="asserts/images/{{ image.name }}" style="width:100%;">
+        <div class="img-container hh-big-pic">
+        <img src="asserts/images/space-w4-h3.png">
+        <div class="pic">
+            <img src="asserts/images/{{ image.name }}">
+        </div>
             {% if page.carousel_text %}
 	            <div class="img-intro hh-pt-10">
 	            	<p class="intro-text mdi-white">浪漫之旅·三亚双飞五日游（精选蜜月主题景区浪漫升浪漫之旅·三亚双飞五日游（精选蜜月主题景区 浪漫升</p>

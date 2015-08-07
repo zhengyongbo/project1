@@ -114,11 +114,6 @@
     }
 
     .image-wrapper {
-        position: relative;
-
-        img {
-            width: 100%;
-        }
         .image-intro {
             position: absolute;
             padding:0 5px;
@@ -126,6 +121,29 @@
             width: 100%;
             color: #fff;
             background-color: rgba(0, 0, 0, .5);
+        }
+    }
+}
+
+.hh-big-pic {
+    position: relative;
+
+    img {
+        width: 100%;
+    }
+    .pic{
+        position:absolute;
+        top:0;
+        right:0;
+        bottom:0;
+        left:0;
+        margin:0;
+        overflow:hidden;
+        img{
+            width:auto;
+            height:auto;
+            min-width:100%;
+            min-height:100%;
         }
     }
 }

@@ -41,8 +41,9 @@ bottom_nav: bottom_nav_style2
             {% for i in (1..8) %}
                 {% assign item = home_data.line_images %}
                 <div class="col-xs-6">
-                    <div class="image-wrapper">
-                        <img src="asserts/images/{{ item.url }}" alt="线路推荐{{ i }}">
+                    <div class="image-wrapper hh-big-pic">
+                        <img src="asserts/images/space-w4-h3.png">
+                        <div class="pic"><img src="asserts/images/{{ item.url }}" alt="线路推荐{{ i }}"></div>
                         <div class="image-intro clearfix">
                             <div class="title">
                                 {{ item.text }}
