@@ -1,0 +1,46 @@
+login:
+  items:
+    - icon: mdi-action-account-box
+      placeholder: 手机号码
+      type: text
+
+    - icon: mdi-action-lock
+      placeholder: 请输入密码
+      type: password
+
+  btn_text: 登录
+
+register:
+  items:
+    - icon: mdi-hardware-phone-iphone
+      placeholder: 手机号码
+      type: text
+
+    - icon: mdi-image-edit
+      type: text
+      placeholder: 请输入手机验证码
+      verify_code: true
+
+    - icon: mdi-action-lock
+      placeholder: 请输入密码
+      type: password
+
+  btn_text: 注册
+
+
+forget_pwd: 
+  items:
+    - icon: mdi-hardware-phone-iphone
+      placeholder: 手机号码
+      type: text
+
+    - icon: mdi-image-edit
+      type: text
+      placeholder: 请输入手机验证码
+      verify_code: true
+
+    - icon: mdi-action-lock
+      placeholder: 请输入新密码
+      type: password
+
+  btn_text: 重置密码

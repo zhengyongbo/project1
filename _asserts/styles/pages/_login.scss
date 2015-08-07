@@ -7,129 +7,104 @@ $form-login-input-bgcolor-hover: #434A52;
 $form-login-submit-bgcolor: #ea4c88;
 $form-login-submit-bgcolor-hover: #d44179;
 $form-login-submit-color: #eee;
-
 $grid-container-max-width: 20rem;
-$grid-container-width: 90%;
-
+$grid-container-width: 80%;
 $link-color: #eee;
-
 input {
-  border: 0;
-  color: inherit;
-  font: inherit;
-  margin: 0;
-  outline: 0;
-  padding: 0;
-  transition: background-color .3s;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    transition: background-color .3s;
 }
 
 // Layout
 .main-container {
-  flex: 1;
-  padding: 3rem 0;
+    flex: 1;
+    padding: 3rem 0;
 }
 
 // Forms
-
 .form {
-
-  input {
-
-    &[type="password"],
-    &[type="text"],
-    &[type="submit"] {
-      width: 100%;
-    }
-
-  }
-
-  &-login {
     color: $form-login-color;
-
-    label,
-    input[type="text"],
-    input[type="password"],
-    input[type="submit"] {
-      border-radius: $form-login-border-radus;
-      padding: 1rem;
-    }
-
-    label {
-      background-color: $form-login-label-bgcolor;
-      border-bottom-right-radius: 0;
-      border-top-right-radius: 0;
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-      margin-bottom: 0;
-      padding-top: 18px;
-    }
-
     input {
-
-      &[type="text"],
-      &[type="password"] {
-        background-color: $form-login-input-bgcolor;
-        border-bottom-left-radius: 0;
-        border-top-left-radius: 0;
-
-        &:focus,
-        &:hover {
-          background-color: $form-login-input-bgcolor-hover;
+        &[type="password"],
+        &[type="text"],
+        &[type="submit"] {
+            width: 100%;
         }
-
-      }
-
-      &[type="submit"] {
-        background-color: $form-login-submit-bgcolor;
-        color: $form-login-submit-color;
-        font-weight: bold;
-        text-transform: uppercase;
-
-        &:focus,
-        &:hover {
-          background-color: $form-login-submit-bgcolor-hover;
-        }
-
-      }
-
     }
+    &-login {
+        label,
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            border-radius: $form-login-border-radus;
+            padding: 1rem;
+        }
+        label {
+            // background-color: $form-login-label-bgcolor;
+            border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            margin-bottom: 0;
+            // padding-top: 18px;
 
-  }
+        }
+        input {
+            &[type="text"],
+            &[type="password"] {
+                // background-color: $form-login-input-bgcolor;
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                &:focus,
+                &:hover {
+                    // background-color: $form-login-input-bgcolor-hover;
+                }
+            }
+        }
+    }
+    &-field {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #eee;
 
-  &-field {
-    display: flex;
-    margin-bottom: 1rem;
-  }
-
-  &-input {
-    flex: 1;
-  }
-
+        &:last-child{
+          border-bottom: none;
+        }
+    }
+    &-input {
+        flex: 1;
+    }
+    .btn.btn-block {
+        margin-bottom: 0;
+    }
 }
 
 // Utilities
-
 .align {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
 }
 
 .hidden {
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
 }
 
 // Grid
 .grid-container {
-  margin: 0 auto;
-  max-width: $grid-container-max-width;
-  width: $grid-container-width;
+    margin: 0 auto;
+    // max-width: $grid-container-max-width;
+    width: $grid-container-width;
 }
-

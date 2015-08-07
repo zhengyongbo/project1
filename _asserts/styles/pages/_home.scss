@@ -57,7 +57,7 @@
 
         p{
             padding:0 10px;
-            font:18px/1.2 Microsoft YaHei,SimSun,Arial;
+            font:18px/1 Microsoft YaHei,SimSun,Arial;
         }
     }
     .my-btn-group a i{
@@ -65,9 +65,10 @@
     }
     .line-recomm {
         .recomm-header{
+            padding:10px 10px 4px 10px;
             .pull-left{
                 border-left:solid 8px $main-bg-color;
-                color:$second-color-color;
+                color:$third-front-color;
                 font-weight:bold;
                 font-size:1.2857em;
                 line-height:1;
@@ -75,29 +76,29 @@
                 margin-top:5px;
             }
             .pull-right{
-                padding-top:5px;
+                padding-top:3px;
                 a{
                     color:$hover-font-color1;
                 }
             }
         }
         .recomm-body{
-            padding:5px;
+            padding:10px 5px 0 5px;
             .col-xs-6{
-                padding:5px;
+                padding:0 5px 10px 5px;
                 .title {
                     height:30px;
                     overflow:hidden;
                 }
                 .price{
-                    float:right;
+                    float:left;
                     position: absolute;
-                    right:0;
+                    left:0;
                     top:0; 
-                    padding-right:3px;
-                    background-color:$main-bg-color;
+                    padding:0 8px 0 3px;
                     color:$main-front-color;
-                    line-height:1.5;
+                    line-height:1.8;
+                    border-radius:0 10px 10px 0;
                 }
             }
         }

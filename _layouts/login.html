@@ -1,0 +1,30 @@
+---
+layout: default
+top_nav: top_nav_style1
+---
+
+<div class="main-container">
+    <div class="grid-container">
+      <form action="" class="form form-login">
+        {% assign data = site.data.login[page.slug] %}
+        
+        {% for item in data.items %}
+          <div class="form-field">
+            <label class="{{ item.icon }}" for="input-{{ forloop.index }}"></label>
+            <input id="input-{{ forloop.index }}" type="{{ item.type }}" class="form-input" placeholder="{{ item.placeholder }}" required>
+
+            {% if item.verify_code %}
+            <a href="#" class="btn btn-flat btn-info btn-sm">获取验证码</a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      
+        <div class="form-field">
+            <button class="btn btn-block btn-warning btn-lg btn-raised" type="submit">{{ data.btn_text }}</button>
+        </div>
+      </form>
+      {% if page.slug == 'login' %}
+      <p class="text-right"><a href="forget_password.html">忘记密码？</a></p>
+      {% endif %}
+    </div>
+  </div>
