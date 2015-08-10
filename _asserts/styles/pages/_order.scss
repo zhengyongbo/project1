@@ -76,9 +76,11 @@
 	.insure-list-group.list-group{
 		.list-group-item {
 		    padding: 0 0 0 6px;
+		    overflow: visible;
 		}
 		.list-group-item .row-content {
 		    min-height: 40px;
+		    width: 65%;
 		    .least-content{
 		    	right:5px;
 		    }

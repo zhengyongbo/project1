@@ -202,4 +202,9 @@ $(function() {
         autoplaySpeed: 5000,
         lazyLoad: 'ondemand'
     });
+
+    $("#line_detail_nav .nav li").click(function(){
+        var $this = $(this);
+        $this.addClass('active').siblings().removeClass('active');
+    });
 });

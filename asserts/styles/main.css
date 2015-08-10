@@ -187,7 +187,9 @@ ul, ol, li {
   bottom: 0;
   background: #fff; }
   .hh-fixed-bottom-btn .full-width {
-    margin: -15px -15px 5px -15px; }
+    margin-top: 10px; }
+    .hh-fixed-bottom-btn .full-width .form-group {
+      margin-bottom: 0; }
 
 @media (max-width: 767px) {
   .container.hh-fixed-bottom-btn {
@@ -295,7 +297,7 @@ ul, ol, li {
       display: block; }
     .img-container .img-intro .intro-text {
       font-weight: bold;
-      height: 19px;
+      height: 17px;
       display: block;
       overflow: hidden; }
     .img-container .img-intro .intro-price {
@@ -781,9 +783,11 @@ input[type="search"] {
   .hh-order_submit_2 .panel .form-group .row {
     padding-top: 5px; }
   .hh-order_submit_2 .insure-list-group.list-group .list-group-item {
-    padding: 0 0 0 6px; }
+    padding: 0 0 0 6px;
+    overflow: visible; }
   .hh-order_submit_2 .insure-list-group.list-group .list-group-item .row-content {
-    min-height: 40px; }
+    min-height: 40px;
+    width: 65%; }
     .hh-order_submit_2 .insure-list-group.list-group .list-group-item .row-content .least-content {
       right: 5px; }
   .hh-order_submit_2 .insure-list-group.list-group .list-group-item .list-group-item-heading {

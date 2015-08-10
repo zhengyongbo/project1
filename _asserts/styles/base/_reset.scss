@@ -149,7 +149,10 @@ ul , ol , li {
 	bottom:0;
 	background:$third-bg-color;
 	.full-width{
-		margin:-15px -15px 5px -15px;
+		margin-top:10px;
+		.form-group {
+		    margin-bottom: 0;
+		}
 	}
 }
 @media (max-width:767px){
