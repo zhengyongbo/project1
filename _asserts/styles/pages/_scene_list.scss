@@ -1,0 +1,14 @@
+.my-list-group{
+	.list-group-item{
+		padding-left:165px;
+		.row-picture{
+			width:150px;
+			margin-left:-155px;
+			float:left;
+		}
+		.row-content{
+			width:100%;
+			float:left;
+		}
+	}
+}

@@ -533,7 +533,8 @@ input[type="search"] {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 5000; }
+  z-index: 5000;
+  display: none; }
   .go-top .full-width {
     margin: -15px -15px 5px -15px; }
     .go-top .full-width a {
@@ -722,6 +723,16 @@ input[type="search"] {
       height: auto;
       min-width: 100%;
       min-height: 100%; }
+
+.my-list-group .list-group-item {
+  padding-left: 165px; }
+  .my-list-group .list-group-item .row-picture {
+    width: 150px;
+    margin-left: -155px;
+    float: left; }
+  .my-list-group .list-group-item .row-content {
+    width: 100%;
+    float: left; }
 
 /*hh-order-row-content*/
 .hh-order-row-content {

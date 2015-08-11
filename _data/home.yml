@@ -12,6 +12,6 @@ tour_icons:
     bg_class: well-info
 
 line_images:
-  url: home_01.png
+  url: line_recomm_01.png
   text: 张家界三天两晚张家界三天两晚
   price: <small>￥</small>100<small>起</small>

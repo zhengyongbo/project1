@@ -9,7 +9,7 @@ slug: index
     </div>
     <div class="list-group my-list-group">
         {% for node in site.html_pages %} {% if node.slug != "index" %}
-        <div class="list-group-item">
+        <div class="list-group-item" style="padding-left:15px;">
           <div class="row-content" style="min-height: 20px;">
             <a href=".{{ node.url }}" style="display: block;width:100%;">
             <i class="fa fa-link" style="padding-right:10px;"></i>
