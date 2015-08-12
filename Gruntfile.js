@@ -205,6 +205,10 @@ module.exports = function(grunt) {
 
                     '<%= config.dist %>/scripts/main.min.js': [
                         '<%= config.dist %>/scripts/main.js'
+                    ],
+
+                    '<%= config.dist %>/scripts/temp.min.js': [
+                        '<%= config.dist %>/scripts/temp.js'
                     ]
                 }
             }

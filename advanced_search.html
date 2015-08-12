@@ -14,9 +14,9 @@ top_nav: top_nav_style1
 					{% when "btns" %}
 					<div class=" form-group hh-border-b-10">
 						<label for="inputEmail" class="col-xs-12 row hh-font-size-16">{{ item.text }}</label>
-						<div class="col-xs-12 row btn-fix-with-group">
+						<div class="col-xs-12 hh-plr-0 btn-fix-with-group">
 							{% for btn in item.btns %}
-								<a href="#" class="btn btn-default btn-raised hh-font-size-14">{{ btn }}</a>
+							<div class="col-xs-3 col-sm-2 col-md-2 col-lg-1 hh-plr-5"><a href="#" class="btn btn-default btn-raised btn-block hh-font-size-14">{{ btn }}</a></div>
 							{% endfor %}
 						</div>
 					</div>

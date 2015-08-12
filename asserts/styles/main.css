@@ -77,9 +77,16 @@ ul, ol, li {
 .hh-pb-30 {
   padding-bottom: 30px; }
 
+.hh-pl-10 {
+  padding-left: 10px; }
+
 .hh-plr-0 {
   padding-left: 0;
   padding-right: 0; }
+
+.hh-plr-5 {
+  padding-left: 5px;
+  padding-right: 5px; }
 
 .hh-plr-10 {
   padding-left: 10px;
@@ -195,7 +202,6 @@ ul, ol, li {
   .container.hh-fixed-bottom-btn {
     width: 100%; } }
 .btn-fix-with-group .btn {
-  width: 80px;
   text-align: center;
   padding: 5px;
   overflow: hidden; }
@@ -263,6 +269,41 @@ ul, ol, li {
 @media (max-width: 480px) {
   .navbar-x {
     font-size: 12px; } }
+@-webkit-keyframes fadeinout {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 1; }
+  100% {
+    opacity: 0; } }
+@keyframes fadeinout {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 1; }
+  100% {
+    opacity: 0; } }
+.loading-btn {
+  text-transform: none; }
+  .loading-btn span {
+    background: #fff;
+    display: inline-block;
+    height: 10px;
+    width: 10px;
+    margin-left: 5px;
+    will-change: opacity;
+    -webkit-animation: fadeinout 1600ms infinite;
+    animation: fadeinout 1600ms infinite; }
+  .loading-btn span:nth-child(1) {
+    -webkit-animation-delay: 150ms;
+    animation-delay: 150ms; }
+  .loading-btn span:nth-child(2) {
+    -webkit-animation-delay: 300ms;
+    animation-delay: 300ms; }
+  .loading-btn span:nth-child(3) {
+    -webkit-animation-delay: 450ms;
+    animation-delay: 450ms; }
+
 .my-btn-group {
   margin-top: 0;
   box-shadow: none;
@@ -862,9 +903,10 @@ input[type="search"] {
 .advanced-search {
   padding-top: 10px; }
   .advanced-search .form-group {
-    padding: 0 15px 10px 15px;
-    margin-left: 0;
-    margin-right: 0; }
+    padding: 0 10px 10px 10px;
+    margin: 0; }
+    .advanced-search .form-group .btn-fix-with-group {
+      margin-left: -10px; }
   .advanced-search .hh-border-b-10 {
     border-bottom: solid 10px #f5f5f5; }
   .advanced-search .form-group.hh-row {

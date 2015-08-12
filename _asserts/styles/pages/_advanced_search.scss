@@ -1,9 +1,11 @@
 .advanced-search{
 	padding-top:10px;
 	.form-group {
-		padding:0 15px 10px 15px;
-		margin-left: 0;
-	    margin-right: 0;
+		padding:0 10px 10px 10px;
+		margin:0;
+		.btn-fix-with-group{
+			margin-left:-10px;
+		}
 	}
 	.hh-border-b-10{
 	    border-bottom:solid 10px $four-bg-color;
