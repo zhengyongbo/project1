@@ -13,9 +13,9 @@ module.exports = function(grunt) {
 
         // Watches files for changes and runs tasks based on the changed files
         watch: {
-            sass: {
+            compass: {
                 files: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
-                tasks: ['sass:server', 'postcss', 'copy:sass', 'cssmin']
+                tasks: ['compass:dist', 'postcss', 'copy:sass', 'cssmin']
             },
             js: {
                 files: ['<%= config.app %>/scripts/{,*/}*.js'],
@@ -24,6 +24,14 @@ module.exports = function(grunt) {
             images: {
                 files: ['<%= config.app %>/images/{,*/}*'],
                 tasks: ['copy:images']
+            }
+        },
+
+        compass: {
+            dist: {
+                options: {
+                    config: 'config.rb'
+                }
             }
         },
 
@@ -219,7 +227,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-bower-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks('grunt-contrib-compass');
     grunt.loadNpmTasks('grunt-postcss');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
@@ -228,7 +236,7 @@ module.exports = function(grunt) {
     grunt.registerTask('default', [
         'clean:dist',
         'bower_concat',
-        'sass:dist',
+        'compass:dist',
         'postcss',
         'copy:dist',
         'uglify',

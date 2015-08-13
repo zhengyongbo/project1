@@ -119,6 +119,11 @@ ul , ol , li {
 		font-size: #{$size}px;
 	}
 }
+input.hh-checkbox {
+  width:20px;
+  height:20px;
+  margin:10px 10px 0 0;
+}
 .border-div{
 	border: 1px solid #ccc;
 	padding: 10px;

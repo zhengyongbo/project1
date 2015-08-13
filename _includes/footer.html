@@ -5,3 +5,26 @@
 {% else %}
 	<script type="text/javascript" src="{{ " asserts/scripts/main.js " | prepend: site.baseurl }}"></script>
 {% endif %}
+
+{% if page.slug == 'login' %}
+<script>
+function showMessage(msg){
+	$('#modalMessage').text(msg);
+	$('#showMessage').modal('show');
+};
+
+$("#submit").click(function(){
+    var Mobile = $("#input-1").val(); if(Mobile ==""){ showMessage("手机号码未填！");return false; }
+    var PassWord = $("#input-2").val(); if(PassWord ==""){showMessage("密码未填！");return false; }
+    $.post(API+"/User/login",{Mobile:Mobile,Password:PassWord},function(data){
+        if(data.status < 0){ showMessage(data.msg);return false;}
+        $.cookie("UserID",data.result.userInfo.ID,{expires:60*60*24*365,path: '/'})
+        $.cookie("UserName",data.result.userInfo.Name,{expires:60*60*24*365,path: '/'})
+        $.cookie("UserMobile",data.result.userInfo.Mobile,{expires:60*60*24*365,path: '/'})
+        $.cookie("UserEmail",data.result.userInfo.Email,{expires:60*60*24*365,path: '/'})
+        window.history.go(-1);
+    },"jsonp")       
+});
+</script>
+
+{% endif %}
