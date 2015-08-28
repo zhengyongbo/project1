@@ -1,4 +1,17 @@
 .hh-home{
+    .logo-wrap{
+        img{
+            height:50px;
+            width:auto;
+        }
+        .phone-arch {
+            line-height: 50px;
+            i{
+                font-size: 35px;
+                vertical-align: middle;
+            }
+        }
+    }
     .search-bar{
         padding:10px;
         line-height:48px;

@@ -14,6 +14,9 @@ html,body{
 body{
 	font:14px/2 Microsoft YaHei,SimSun,Arial;
 }
+a{
+	color:#444;
+}
 a, a:focus, a:hover {
   color:$third-front-color;
 }
@@ -50,6 +53,9 @@ ul , ol , li {
 }
 .hh-mtb-0 {
 	margin-top:0;
+	margin-bottom:0;
+}
+.hh-mb-0 {
 	margin-bottom:0;
 }
 .hh-mtb-5{
@@ -104,6 +110,10 @@ ul , ol , li {
 }
 .hh-padding-0 {
 	padding:0;
+}
+
+.hh-padding-15{
+	padding:15px;
 }
 
 .hh-font-weight{

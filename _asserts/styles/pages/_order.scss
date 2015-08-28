@@ -1,7 +1,19 @@
 /*hh-order-row-content*/
 .hh-order-row-content {
     padding-top: 20px;
-    padding-bottom: 30px;
+    padding-bottom: 25px;
+    .hh-back{
+    	padding:50px 0 10px 0;
+    	margin:-40px -5px 0 -5px;
+    	background:$hover-bg-color1;
+    	color:$hover-font-color1;
+    	text-align:center;
+    	.my-btn-group a.btn-default {
+	    	color:$hover-font-color1;
+	    	font-size:16px;
+	    }
+    }
+    
 	.list-group .list-group-item .list-group-item-heading {
 	    font-size: 1.2em;
 	    line-height: 1.28;
@@ -10,6 +22,17 @@
 	    font-size: 0.9em;
 	}
 }
+@media (max-width:767px){
+	.hh-order-row-content .hh-back {
+    margin:-40px 0 0 0;
+}
+}
+/*order-submit-bottom*/
+.order-submit-bottom.form-group{
+	margin-left:0;
+	margin-right:0;
+}
+
 .hh-mt--10 {
 	margin-top:-10px;
 }

@@ -1,16 +1,23 @@
 <!-- main -->
 <div class="list-group my-list-group hh-p-t20">
-    <div class="list-group-item">
-        <div class="row-picture">
-            <img src="asserts/images/scene_list_01.png" alt="icon">
+    <a href="" title="">
+        {% if page.order_id %}
+            <div class="hh-plr-10 hh-pt-10">               
+                {{ page.order_id }}
+            </div>
+        {% endif %}
+        <div class="list-group-item">
+            <div class="row-picture">
+                <img src="asserts/images/scene_list_01.png" alt="icon">
+            </div>
+            <div class="row-content">
+                <h5 class="list-group-item-heading">宁乡湘电灰汤温泉</h5>
+                <p class="list-group-item-text">下单时间：2015-01-13</p>
+                <p class="list-group-item-text">成人：1&nbsp;&nbsp;儿童：0</p>
+                <p class="price-block"><small>￥</small>299.00</p>
+            </div>
         </div>
-        <div class="row-content">
-            <h5 class="list-group-item-heading">宁乡湘电灰汤温泉</h5>
-            <p class="list-group-item-text">下单时间：2015-01-13</p>
-            <p class="list-group-item-text">成人：1&nbsp;&nbsp;儿童：0</p>
-            <p class="price-block"><small>￥</small>299.00</p>
-        </div>
-    </div>
+    </a>
     <div class="panel panel-default hh-pay-back">
         <div class="panel-footer">等待支付<span class="pull-right hh-mt--10"><a href="javascript:void(0)" class="btn btn-warning btn-raised btn-sm">去支付</a></span></div>
     </div>
